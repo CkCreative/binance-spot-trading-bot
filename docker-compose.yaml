@@ -1,13 +1,9 @@
 version: "3"
 
 services:
-  jsbot:
+  bot:
     image: node:14
     restart: always
     volumes:
-      - bot_db:/usr/app/db
-      - ./js:/usr/app
+      - ./bot:/usr/app
     command: bash -c "cd /usr/app && npm install && npm run dev"
-
-volumes:
-  bot_db:
