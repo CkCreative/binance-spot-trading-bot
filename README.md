@@ -34,6 +34,7 @@ So far, when the WIGGLE_ROOM is set to 0.5% in the DENTUSDT market, the average 
 - Ability to calculate and report profits at different times of the day depending on all the successful trades.
 - Make it more configurable, everything should be configured even through an API, not necessarily through the settings file.
 - Ability to send notifications to many other channels, e.g. Telegram, Slack
+- Ability to consider TA indicators
 
 ## Running the Bot
 
@@ -56,5 +57,3 @@ Add your suitable settings:
     "DISCORD_ERRORS": "DISCORD_WEBHOOK_URL_FOR_ERRORS" // WHERE TO SEND ERRORS
 }
 ```
-
-IMPORTANT: Manually place the first buy order and then start the bot.
