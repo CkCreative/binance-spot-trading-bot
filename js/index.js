@@ -60,6 +60,11 @@ setInterval(async() => {
     // Check for open orders and if it is a BUY order and has not been filled within X minutes, cancel it
     // so that you can place another BUY order
     openOrders = await openOrder(openOptions)
+    
+    // Guard against errors
+    if (openOrders.msg) {
+        return
+    }
     try {
         const cancelOptions = {
             symbol: `${settings.MAIN_MARKET}`,
@@ -84,22 +89,22 @@ setInterval(async() => {
 
         // Check if there are existing orders, if any, then pick the top as the current order.
         let topOrder = await allOrder(openOptions)
+
+        // Guard against errors
+        if (topOrder.msg) {
+            return
+        }
         if (topOrder.length > 0) {
             latestOrder = topOrder
-
-            // if (latestOrder[0].status != 'FILLED' && latestOrder[0].side == 'BUY') {
-            //     // Make it so the buy keeps getting placed after being cancelled, but only buy.
-            //     latestOrder[0].side = 'SELL'
-            // }
             
             // If the latest order is filled and it is a BUY order
             if (topOrder[0].status == 'FILLED' && topOrder[0].side == 'BUY') {
-                sendDiscord(`Sold.`)
+                sendDiscord(`Sold. Placing a new order...`)
             }
 
             // If the latest order is filled and it is a SELL order
             if (topOrder[0].status == 'FILLED' && topOrder[0].side == 'SELL') {
-                sendDiscord(`Bought.`)
+                sendDiscord(`Bought. Placing a new order...`)
             }
         } else {
             sendDiscord(`There is no open order currently. Deciding which side to start with...`)
