@@ -20,9 +20,9 @@ Also, when the main asset tanks, you will go down with it, however, the tanking 
 
 ## Target
 
-From initial tests, when the WIGGLE_ROOM is set to 0.3%, the number of trades averages between 2-3 in one hour. This means that considering the fees are 0.1%, you remain with 0.1%*3 which implies that you can make up to 0.3% of 95% of your principal amount every one hour. In 24 hours, if all goes well being overly optimistic, you can make between 4-7% of 95% of your principal. (The 95% comes from trading at least 95% of your mmain asset)
+From initial tests, when the WIGGLE_ROOM is set to 0.3%, the number of trades averages between 2-3 in one hour. This means that considering the fees are 0.1%, you remain with 0.1%*3 which implies that you can make up to 0.3% of 98% of your principal amount every one hour. In 24 hours, if all goes well being overly optimistic, you can make between 4-7% of 98% of your principal. (The 98% comes from trading at least 98% of your mmain asset)
 
-So say you started with 1000 USD, 95% of that is 950USD. Then, 4-7% of that is about 40-70USD each day. Which is decent to be honest.
+So say you started with 1000 USD, 98% of that is 980USD. Then, 4-7% of that is about 40-70USD each day. Which is decent to be honest.
 
 So far, when the WIGGLE_ROOM is set to 0.5% in the DENTUSDT market, the average return is about 0.6% in 4 hours, translating to around 2-4% each day. Quite decent!
 
@@ -48,8 +48,9 @@ Add your suitable settings:
     "API_KEY": "YOUR BINANCE API KEY", // STRING
     "WIGGLE_ROOM": 0.5, // FLOAT - THE PERCENTAGE MARGIN YOU ARE WILLING TO PLAY WITH
     "MAIN_MARKET": "BTCUSDT", // STRING - THE MARKET, E.G. BTCUSDT
-    "MAIN_ASSET": "BTC", // STRING - YOUR MAIN ASSET, E.G. BTC,
-    "PRECISION": 2, // INTEGER - NUMBER OF DECIMAL PLACES ALLOWED BY THE TRADING PAIR, E.G. 0.01 FOR BTCUSDT
+    "MAIN_ASSET": "BTC", // STRING - YOUR MAIN ASSET, E.G. BTC
+    "MAIN_ASSET_DECIMALS": 6, // INTEGER - THE NUMBER OF DECIMALS ALLOWED FOR QUANTITY OF THE MAIN ASSET THAT YOU ARE TRADING, E.G. 6 FOR BTC
+    "PRECISION": 2, // INTEGER - NUMBER OF DECIMAL PLACES ALLOWED FOR QUANTITY BY THE TRADING PAIR, E.G. 0.01 FOR BTCUSDT
     "DISCORD": "DISCORD_WEBHOOK_URL"
 }
 ```
