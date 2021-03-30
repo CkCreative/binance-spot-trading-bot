@@ -111,12 +111,12 @@ setInterval(async() => {
             
             // If the latest order is filled and it is a BUY order
             if (topOrder[0].status == 'FILLED' && topOrder[0].side == 'BUY') {
-                sendDiscord(`Sold. Placing a new order...`)
+                sendDiscord(`Bought. Placing a new order...`)
             }
 
             // If the latest order is filled and it is a SELL order
             if (topOrder[0].status == 'FILLED' && topOrder[0].side == 'SELL') {
-                sendDiscord(`Bought. Placing a new order...`)
+                sendDiscord(`Sold. Placing a new order...`)
             }
 
             if (latestOrder[0].side == 'SELL' || (latestOrder[0].status == 'CANCELED' && latestOrder[0].side == 'BUY')) {
