@@ -1,4 +1,4 @@
-import {checkPrice, accountBalances, avgPrice} from './bot/poll'
+import {checkPrice, accountBalances, avgPrice} from './functions/poll'
 import settings from './settings.json'
 
 // setInterval(async() => {

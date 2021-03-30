@@ -1,7 +1,7 @@
-import {placeOrder, cancelOrder, openOrder, allOrder} from './bot/order'
-import {checkPrice, accountBalances, avgPrice} from './bot/poll'
+import {placeOrder, cancelOrder, openOrder, allOrder} from './functions/order'
+import {checkPrice, accountBalances, avgPrice} from './functions/poll'
 import settings from './settings.json'
-import {sendDiscord} from './bot/utils'
+import {sendDiscord} from './functions/utils'
 
 // Calculate the highest and lowest percentage multipliers according to the set WIGGLE_ROOM
 const width = settings.WIGGLE_ROOM/100
