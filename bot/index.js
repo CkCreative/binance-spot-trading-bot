@@ -63,13 +63,13 @@ setInterval(async() => {
     
     // Guard against errors
     if (openOrders.msg) {
+        console.log('Error: ', openOrders.msg)
+        const openOptions = {
+            symbol: `${settings.MAIN_MARKET}`,
+            timestamp: Date.now()
+        };
         openOrders = await openOrder(openOptions) 
-        if (openOrders.msg) {
-            openOrders = await openOrder(openOptions) 
-            if (openOrders.msg) {
-                return
-            }
-        }
+        
     }
     try {
         const cancelOptions = {
@@ -98,16 +98,13 @@ setInterval(async() => {
 
         // Guard against errors
         if (topOrder.msg) {
+            console.log('Error: ', topOrder.msg)
+
+            const openOptions = {
+                symbol: `${settings.MAIN_MARKET}`,
+                timestamp: Date.now()
+            };
             topOrder = await allOrder(openOptions) 
-            if (topOrder.msg) {
-                topOrder = await allOrder(openOptions) 
-                if (topOrder.msg) {
-                    topOrder = await allOrder(openOptions) 
-                    if (topOrder.msg) {
-                        return
-                    }
-                }
-            }
         }
         if (topOrder.length > 0) {
             latestOrder = topOrder
@@ -120,6 +117,70 @@ setInterval(async() => {
             // If the latest order is filled and it is a SELL order
             if (topOrder[0].status == 'FILLED' && topOrder[0].side == 'SELL') {
                 sendDiscord(`Bought. Placing a new order...`)
+            }
+
+            if (latestOrder[0].side == 'SELL' || (latestOrder[0].status == 'CANCELED' && latestOrder[0].side == 'BUY')) {
+                const buyingPrice = Number(price.price*bottomBorder).toFixed(`${settings.PRECISION}`)
+                const quantityToBuy = ((acbl.USDT-2)/buyingPrice).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
+                // Initialize order options
+                const orderOptions = {
+                    symbol: `${settings.MAIN_MARKET}`,
+                    side:  'BUY',
+                    type: 'LIMIT',
+                    timeInForce: 'GTC',
+                    timestamp: Date.now(),
+                    quantity: quantityToBuy,
+                    price: buyingPrice,
+                    newClientOrderId: Date.now()
+                }
+                if ((orderOptions.quantity != -0 || orderOptions.quantity != 0) && quantityToBuy*buyingPrice >= 15) {
+                    placeOrder(orderOptions).then(order => {
+                        if (order.msg) {
+                            console.error(order)
+                            sendDiscord(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${orderOptions.quantity}`)
+                            return
+                        }
+                        sendDiscord(`New order placed for ${orderOptions.quantity}@${orderOptions.price} | ${orderOptions.side}`)
+                        latestOrder[0] = order
+                        return
+                    });
+                } else {
+                    console.log('There was an error placing BUY order.')
+                }
+            }
+    
+            // Get the last buy price from the API, and if it less than the current price,
+            // use the current price instead.
+            // If the last order is BUY and is FILLED, we can now SELL
+            if (latestOrder[0].status == 'FILLED' && latestOrder[0].side == 'BUY') {
+                let sellingPrice = Number(latestOrder[0].price*topBorder).toFixed(`${settings.PRECISION}`)
+                sellingPrice = sellingPrice < current_price ? (current_price*topBorder).toFixed(`${settings.PRECISION}`) : sellingPrice
+                const sellingQuantity = (acbl.MAIN_ASSET*0.98).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
+                const sellingOptions = {
+                    symbol: `${settings.MAIN_MARKET}`,
+                    side: 'SELL',
+                    type: 'LIMIT',
+                    timeInForce: 'GTC',
+                    timestamp: Date.now(),
+                    quantity: sellingQuantity,
+                    price: sellingPrice,
+                    newClientOrderId: Date.now()
+                }
+    
+                if ((sellingOptions.quantity != -0 || sellingOptions.quantity != 0) && acbl.MAIN_ASSET*sellingPrice >= 15) {
+                    placeOrder(sellingOptions).then(order => {
+                        if (order.msg) {
+                            console.error(order)
+                            sendDiscord(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellingOptions.quantity}`)
+                            return
+                        }
+                        sendDiscord(`New order placed for ${sellingOptions.quantity}@${sellingOptions.price} | ${sellingOptions.side}`)
+                        latestOrder[0] = order
+                        return
+                    });
+                } else {
+                    console.log('There was an error placing SELL order.')
+                }
             }
         } else {
             sendDiscord(`There is no open order currently. Deciding which side to start with...`)
@@ -191,69 +252,7 @@ setInterval(async() => {
         // If the order options indicate a BUY, save the details of the order, this is to help when 
         // setting the selling price later
         // If we sold the last time, the we now need to BUY
-        if (latestOrder[0].side == 'SELL') {
-            const buyingPrice = Number(price.price*bottomBorder).toFixed(`${settings.PRECISION}`)
-            const quantityToBuy = ((acbl.USDT-2)/buyingPrice).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
-            // Initialize order options
-            const orderOptions = {
-                symbol: `${settings.MAIN_MARKET}`,
-                side:  'BUY',
-                type: 'LIMIT',
-                timeInForce: 'GTC',
-                timestamp: Date.now(),
-                quantity: quantityToBuy,
-                price: buyingPrice,
-                newClientOrderId: Date.now()
-            }
-            if ((orderOptions.quantity != -0 || orderOptions.quantity != 0) && quantityToBuy*buyingPrice >= 15) {
-                placeOrder(orderOptions).then(order => {
-                    if (order.msg) {
-                        console.error(order)
-                        sendDiscord(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${orderOptions.quantity}`)
-                        return
-                    }
-                    sendDiscord(`New order placed for ${orderOptions.quantity}@${orderOptions.price} | ${orderOptions.side}`)
-                    latestOrder[0] = order
-                    return
-                });
-            } else {
-                console.log('There was an error placing BUY order.')
-            }
-        }
-
-        // Get the last buy price from the API, and if it less than the current price,
-        // use the current price instead.
-        // If the last order is BUY and is FILLED, we can now SELL
-        if (latestOrder[0].status == 'FILLED' && latestOrder[0].side == 'BUY') {
-            let sellingPrice = Number(latestOrder[0].price*topBorder).toFixed(`${settings.PRECISION}`)
-            sellingPrice = sellingPrice < current_price ? (current_price*topBorder).toFixed(`${settings.PRECISION}`) : sellingPrice
-            const sellingQuantity = (acbl.MAIN_ASSET*0.98).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
-            const sellingOptions = {
-                symbol: `${settings.MAIN_MARKET}`,
-                side: 'SELL',
-                type: 'LIMIT',
-                timeInForce: 'GTC',
-                timestamp: Date.now(),
-                quantity: sellingQuantity,
-                price: sellingPrice,
-                newClientOrderId: Date.now()
-            }
-
-            if ((sellingOptions.quantity != -0 || sellingOptions.quantity != 0) && acbl.MAIN_ASSET*sellingPrice >= 15) {
-                placeOrder(sellingOptions).then(order => {
-                    if (order.msg) {
-                        console.error(order)
-                        sendDiscord(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellingOptions.quantity}`)
-                        return
-                    }
-                    sendDiscord(`New order placed for ${sellingOptions.quantity}@${sellingOptions.price} | ${sellingOptions.side}`)
-                    latestOrder[0] = order
-                    return
-                });
-            } else {
-                console.log('There was an error placing SELL order.')
-            }
-        }
+        
         
     } else {
 

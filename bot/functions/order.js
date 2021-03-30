@@ -42,7 +42,7 @@ export const cancelOrder = function(o){
 
 // Check the status of a given order function
 export const checkOrder = function(o){
-    const to_sign = `symbol=${o.symbol}&orderId=${o.orderId}&origClientOrderId=${o.originalClientOrderId}&timestamp=${o.timestamp}`
+    const to_sign = `symbol=${o.symbol}&recvWindow=60000&orderId=${o.orderId}&origClientOrderId=${o.originalClientOrderId}&timestamp=${o.timestamp}`
 
     const hmac = crypto.createHmac('sha256', key)
         .update(to_sign)
@@ -60,7 +60,7 @@ export const checkOrder = function(o){
 
 // Check for any open orders function, return the result asynchronously
 export const openOrder = async function(o){
-    const to_sign = `symbol=${o.symbol}&timestamp=${o.timestamp}`
+    const to_sign = `symbol=${o.symbol}&recvWindow=60000&timestamp=${o.timestamp}`
 
     const hmac = crypto.createHmac('sha256', key)
         .update(to_sign)
@@ -78,7 +78,7 @@ export const openOrder = async function(o){
 
 // Check all the orders function, but then only gets the top order
 export const allOrder = async function(o){
-    const to_sign = `symbol=${o.symbol}&limit=1&timestamp=${o.timestamp}`
+    const to_sign = `symbol=${o.symbol}&recvWindow=60000&limit=1&timestamp=${o.timestamp}`
 
     const hmac = crypto.createHmac('sha256', key)
         .update(to_sign)
