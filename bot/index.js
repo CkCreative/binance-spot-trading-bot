@@ -1,7 +1,7 @@
 import {placeOrder, cancelOrder, openOrder, allOrder} from './functions/order'
 import {checkPrice, accountBalances, avgPrice} from './functions/poll'
 import settings from './settings.json'
-import {sendDiscord} from './functions/utils'
+import {sendDiscord, getRSI, sendErrors} from './functions/utils'
 
 // Calculate the highest and lowest percentage multipliers according to the set WIGGLE_ROOM
 const width = settings.WIGGLE_ROOM/100
@@ -24,6 +24,8 @@ setInterval(async() => {
         symbol: `${settings.MAIN_MARKET}`,
         timestamp: Date.now()
     };
+
+    const RSI = await getRSI()
 
     //Check and set account balances
     (async() => {
@@ -116,10 +118,20 @@ setInterval(async() => {
 
             // If the latest order is filled and it is a SELL order
             if (topOrder[0].status == 'FILLED' && topOrder[0].side == 'SELL') {
+                if(RSI > settings.HIGHEST_RSI) {
+                    console.log(`Exiting, RSI is ${RSI}, which is above ${settings.HIGHEST_RSI}`)
+                    sendErrors(`Exiting, RSI is ${RSI}, which is above ${settings.HIGHEST_RSI}`)
+                    return
+                }
                 sendDiscord(`Sold. Placing a new order...`)
             }
 
             if (latestOrder[0].side == 'SELL' || (latestOrder[0].status == 'CANCELED' && latestOrder[0].side == 'BUY')) {
+                if(RSI > settings.HIGHEST_RSI) {
+                    console.log(`Exiting, RSI is ${RSI}, which is above ${settings.HIGHEST_RSI}`)
+                    sendErrors(`Exiting, RSI is ${RSI}, which is above ${settings.HIGHEST_RSI}`)
+                    return
+                }
                 const buyingPrice = Number(price.price*bottomBorder).toFixed(`${settings.PRECISION}`)
                 const quantityToBuy = ((acbl.USDT-2)/buyingPrice).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
                 // Initialize order options
@@ -137,7 +149,7 @@ setInterval(async() => {
                     placeOrder(orderOptions).then(order => {
                         if (order.msg) {
                             console.error(order)
-                            sendDiscord(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${orderOptions.quantity}`)
+                            sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${orderOptions.quantity}`)
                             return
                         }
                         sendDiscord(`New order placed for ${orderOptions.quantity}@${orderOptions.price} | ${orderOptions.side}`)
@@ -153,8 +165,8 @@ setInterval(async() => {
             // use the current price instead.
             // If the last order is BUY and is FILLED, we can now SELL
             if (latestOrder[0].status == 'FILLED' && latestOrder[0].side == 'BUY') {
-                let sellingPrice = Number(latestOrder[0].price*topBorder).toFixed(`${settings.PRECISION}`)
-                sellingPrice = sellingPrice < current_price ? (current_price*topBorder).toFixed(`${settings.PRECISION}`) : sellingPrice
+                let sellingPrice = Number(latestOrder[0].price*fullMultiplier).toFixed(`${settings.PRECISION}`)
+                sellingPrice = sellingPrice < current_price ? (current_price*fullMultiplier).toFixed(`${settings.PRECISION}`) : sellingPrice
                 const sellingQuantity = (acbl.MAIN_ASSET*0.98).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
                 const sellingOptions = {
                     symbol: `${settings.MAIN_MARKET}`,
@@ -171,7 +183,7 @@ setInterval(async() => {
                     placeOrder(sellingOptions).then(order => {
                         if (order.msg) {
                             console.error(order)
-                            sendDiscord(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellingOptions.quantity}`)
+                            sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellingOptions.quantity}`)
                             return
                         }
                         sendDiscord(`New order placed for ${sellingOptions.quantity}@${sellingOptions.price} | ${sellingOptions.side}`)
@@ -186,6 +198,11 @@ setInterval(async() => {
             sendDiscord(`There is no open order currently. Deciding which side to start with...`)
 
             if (acbl.USDT > 15) {
+                if(RSI > settings.HIGHEST_RSI) {
+                    console.log(`Exiting, RSI is ${RSI}, which is above ${settings.HIGHEST_RSI}`)
+                    sendErrors(`Exiting, RSI is ${RSI}, which is above ${settings.HIGHEST_RSI}`)
+                    return
+                }
                 // Initialize order options
                 sendDiscord(`There is $${acbl.USDT} in the account. => BUY order will be placed.`)
                 const buyPrice = Number(price.price*bottomBorder).toFixed(`${settings.PRECISION}`)
@@ -205,7 +222,7 @@ setInterval(async() => {
                     placeOrder(buyOptions).then(order => {
                         if (order.msg) {
                             console.error(order)
-                            sendDiscord(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${buyOptions.quantity}`)
+                            sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${buyOptions.quantity}`)
                             return
                         }
                         sendDiscord(`New order placed for ${buyOptions.quantity}@${buyOptions.price} | ${buyOptions.side}`)
@@ -217,7 +234,7 @@ setInterval(async() => {
             } else if (acbl.MAIN_ASSET*price.price > 15) {
                 // Initialize order options
                 sendDiscord(`There is ${acbl.MAIN_ASSET} ${settings.MAIN_ASSET} in the account. => SELL order will be placed.`)
-                const sellPrice = Number(price.price*topBorder).toFixed(`${settings.PRECISION}`)
+                const sellPrice = Number(price.price*fullMultiplier).toFixed(`${settings.PRECISION}`)
                 const sellQuantity = (acbl.MAIN_ASSET*0.98).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
                 const sellOptions = {
                     symbol: `${settings.MAIN_MARKET}`,
@@ -234,7 +251,7 @@ setInterval(async() => {
                     placeOrder(sellOptions).then(order => {
                         if (order.msg) {
                             console.error(order)
-                            sendDiscord(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellOptions.quantity}`)
+                            sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellOptions.quantity}`)
                             return
                         }
                         sendDiscord(`New order placed for ${sellOptions.quantity}@${sellOptions.price} | ${sellOptions.side}`)
@@ -244,7 +261,7 @@ setInterval(async() => {
                 }
  
             } else {
-                sendDiscord(`Please add money to your account. You currently have only: $${acbl.USDT} and ${acbl.MAIN_ASSET}${settings.MAIN_ASSET}, which is insufficient.`)
+                sendErrors(`Please add money to your account. You currently have only: $${acbl.USDT} and ${acbl.MAIN_ASSET}${settings.MAIN_ASSET}, which is insufficient.`)
             }
 
         }
@@ -255,7 +272,6 @@ setInterval(async() => {
         
         
     } else {
-
         // If there is still an open order, just set that open order as the latest order
         latestOrder = openOrders
     }

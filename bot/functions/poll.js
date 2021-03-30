@@ -15,12 +15,22 @@ export const checkPrice = async(symbol) => {
 
 // Get the average price of a given symbol at a given interval
 export const avgPrice = async(symbol) => {
-    const res = await fetch(`${settings.URL}/klines?symbol=${symbol}&interval=3m&limit=5`,{method: 'GET'})
+    const res = await fetch(`${settings.URL}/klines?symbol=${symbol}&interval=5m&limit=5`,{method: 'GET'})
     // console.log(res)
     const json = await res.json()
     // console.log(json)
     return json
 }
+
+// Get the average price of a given symbol at a given interval
+export const avgPrice30 = async(symbol) => {
+    const res = await fetch(`${settings.URL}/klines?symbol=${symbol}&interval=1m&limit=30`,{method: 'GET'})
+    // console.log(res)
+    const json = await res.json()
+    // console.log(json)
+    return json
+}
+
 
 // Get the account balances of all the tokens
 export const accountBalances = async() => {
