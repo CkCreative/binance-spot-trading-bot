@@ -63,7 +63,13 @@ setInterval(async() => {
     
     // Guard against errors
     if (openOrders.msg) {
-        return
+        openOrders = await openOrder(openOptions) 
+        if (openOrders.msg) {
+            openOrders = await openOrder(openOptions) 
+            if (openOrders.msg) {
+                return
+            }
+        }
     }
     try {
         const cancelOptions = {
@@ -92,7 +98,16 @@ setInterval(async() => {
 
         // Guard against errors
         if (topOrder.msg) {
-            return
+            topOrder = await allOrder(openOptions) 
+            if (topOrder.msg) {
+                topOrder = await allOrder(openOptions) 
+                if (topOrder.msg) {
+                    topOrder = await allOrder(openOptions) 
+                    if (topOrder.msg) {
+                        return
+                    }
+                }
+            }
         }
         if (topOrder.length > 0) {
             latestOrder = topOrder
@@ -201,6 +216,8 @@ setInterval(async() => {
                     latestOrder[0] = order
                     return
                 });
+            } else {
+                console.log('There was an error placing BUY order.')
             }
         }
 
@@ -233,6 +250,8 @@ setInterval(async() => {
                     latestOrder[0] = order
                     return
                 });
+            } else {
+                console.log('There was an error placing SELL order.')
             }
         }
         
