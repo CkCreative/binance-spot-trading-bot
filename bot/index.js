@@ -28,7 +28,7 @@ setInterval(async() => {
     const RSI = await getRSI()
 
     //Check and set account balances
-    (async() => {
+    ;(async() => {
         const {balances} = await accountBalances()
     
         for (let i in balances) {
