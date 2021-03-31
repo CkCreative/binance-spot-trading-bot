@@ -73,15 +73,13 @@ Add your suitable settings:
 
 ## Detailed Installation Instructions
 
-You can run this bot anywhere. This includes on PC, Mac or Linux provided you have node.js (v14) installed.
-
-That said, you can also rely on docker.
+You can run this bot anywhere. This includes on PC, Mac or Linux provided you have node.js (v14) installed if you want to run without Docker.
 
 ### Running without docker
 
 - **Step 1**: Install Node.js (tested on v14 LTS)
 
-- **Step 2**: clone the repository and then `cd` into the cloned directory, `cd` into the bot directory and `run npm install`
+- **Step 2**: clone the repository and then `cd` into the cloned directory, `cd` into the bot directory and run `npm install`
 
 - **Step 3**: Go to binance and obtain your settings i.e. The API KEY and the API SECRET. Remember that if you are going to be using Binance testnet, you need to use the testnet API_KEY and SECRET associated with your testin account at [https://testnet.binancefuture.com](https://testnet.binancefuture.com). If you use the main Binance site, use the API_KEY and SECRET associated with your trading account.
 
