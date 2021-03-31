@@ -40,6 +40,8 @@ So far, when the WIGGLE_ROOM is set to 0.5% in the DENTUSDT market, the average 
 
 Just edit the `settings.json` file to include your own preferences and your available asset as the main asset then `docker-compose up` or `docker-compose up -d` depending on your kind of medicine.
 
+To run without Docker, edit the `settings.json` file accordingly and then run `npm install` then `npm run dev`.
+
 Add your suitable settings:
 
 ```json
@@ -52,7 +54,7 @@ Add your suitable settings:
     "MAIN_ASSET": "BTC", // STRING - YOUR MAIN ASSET, E.G. BTC
     "MAIN_ASSET_DECIMALS": 6, // INTEGER - THE NUMBER OF DECIMALS ALLOWED FOR QUANTITY OF THE MAIN ASSET THAT YOU ARE TRADING, E.G. 6 FOR BTC
     "HIGHEST_RSI": 70, // INTEGER - HIGHEST RSI VALUE YOU WANT TO AVOID BUY
-    "PRECISION": 2, // INTEGER - NUMBER OF DECIMAL PLACES ALLOWED FOR QUANTITY BY THE TRADING PAIR, E.G. 0.01 FOR BTCUSDT
+    "PRECISION": 2, // INTEGER - NUMBER OF DECIMAL PLACES ALLOWED FOR PRICE BY THE TRADING PAIR, E.G. 0.01 FOR BTCUSDT
     "DISCORD": "DISCORD_WEBHOOK_URL", // WHERE TO SEND BUY/SELL NOTIFICATIONS
     "DISCORD_ERRORS": "DISCORD_WEBHOOK_URL_FOR_ERRORS" // WHERE TO SEND ERRORS
 }
