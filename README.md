@@ -2,6 +2,13 @@
 
 This is a Node.js binance trading bot that takes advantage of crypto's volatile prices.
 
+## Support
+
+Join Discord channel to ask questions, or create an issue.
+
+Discord Invite: [Join](https://discord.gg/GTfs6pQmXe)
+
+
 ## Caution
 
 ⚠️ This is still alpha stuff under active development. Some things might not work as described yet.
@@ -63,3 +70,23 @@ Add your suitable settings:
     "DISCORD_ERRORS": "DISCORD_WEBHOOK_URL_FOR_ERRORS" // WHERE TO SEND ERRORS
 }
 ```
+
+## Detailed Installation Instructions
+
+You can run this bot anywhere. This includes on PC, Mac or Linux provided you have node.js (v14) installed.
+
+That said, you can also rely on docker.
+
+### Running without docker
+
+- **Step 1**: Install Node.js (tested on v14 LTS)
+
+- **Step 2**: clone the repository and then `cd` into the cloned directory, `cd` into the bot directory and `run npm install`
+
+- **Step 3**: Go to binance and obtain your settings i.e. The API KEY and the API SECRET.
+
+- **Step 4**: Decide whether to use Binance backtesting API (testnet.binancefuture.com, recommended) or the main site (api.binance.com, only when sure should you do this). If you are going to use testnet, the URL value of the settings.json file should be: `"https://testnet.binancefuture.com/fapi/v1"`. Else use `"https://api.binance.com/api/v3"`.
+
+- **Step 5**: Edit other settings accordingly
+
+- **Step 6**: Run `npm run dev`
