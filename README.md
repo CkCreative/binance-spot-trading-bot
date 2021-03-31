@@ -83,7 +83,7 @@ That said, you can also rely on docker.
 
 - **Step 2**: clone the repository and then `cd` into the cloned directory, `cd` into the bot directory and `run npm install`
 
-- **Step 3**: Go to binance and obtain your settings i.e. The API KEY and the API SECRET.
+- **Step 3**: Go to binance and obtain your settings i.e. The API KEY and the API SECRET. Remember that if you are going to be using Binance testnet, you need to use the testnet API_KEY and SECRET associated with your testin account at [https://testnet.binancefuture.com](https://testnet.binancefuture.com). If you use the main Binance site, use the API_KEY and SECRET associated with your trading account.
 
 - **Step 4**: Decide whether to use Binance backtesting API (testnet.binancefuture.com, recommended) or the main site (api.binance.com, only when sure should you do this). If you are going to use testnet, the URL value of the settings.json file should be: `"https://testnet.binancefuture.com/fapi/v1"`. Else use `"https://api.binance.com/api/v3"`.
 
