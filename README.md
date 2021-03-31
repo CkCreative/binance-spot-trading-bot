@@ -2,6 +2,8 @@
 
 This is a Node.js binance trading bot that takes advantage of crypto's volatile prices.
 
+**NB: You will need a Binance account. [Register Here](https://accounts.binance.cc/en/register?ref=77939580)**
+
 ## Support
 
 Join Discord channel to ask questions, or create an issue.
