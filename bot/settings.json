@@ -5,6 +5,7 @@
     "WIGGLE_ROOM": 0.5,
     "MAIN_MARKET": "BTCUSDT",
     "MAIN_ASSET": "BTC",
+    "FIAT": "USDT",
     "MAIN_ASSET_DECIMALS": 6,
     "HIGHEST_RSI": 70,
     "PRECISION": 2,

@@ -14,7 +14,7 @@ let latestOrder = [{
     side: 'BUY'
 }]
 let acbl = {
-    USDT: 0,
+    FIAT: 0,
     MAIN_ASSET: 0
 }
 
@@ -35,8 +35,8 @@ setInterval(async() => {
             if (balances[i].asset==`${settings.MAIN_ASSET}`) {
                 acbl.MAIN_ASSET = balances[i].free
             }
-            if (balances[i].asset=='USDT') {
-                acbl.USDT = balances[i].free
+            if (balances[i].asset==`${settings.FIAT}`) {
+                acbl.FIAT = balances[i].free
             }
         }
     })();
@@ -133,7 +133,7 @@ setInterval(async() => {
                     return
                 }
                 const buyingPrice = Number(price.price*bottomBorder).toFixed(`${settings.PRECISION}`)
-                const quantityToBuy = ((acbl.USDT-2)/buyingPrice).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
+                const quantityToBuy = ((acbl.FIAT-2)/buyingPrice).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
                 // Initialize order options
                 const orderOptions = {
                     symbol: `${settings.MAIN_MARKET}`,
@@ -197,16 +197,16 @@ setInterval(async() => {
         } else {
             sendDiscord(`There is no open order currently. Deciding which side to start with...`)
 
-            if (acbl.USDT > 15) {
+            if (acbl.FIAT > 15) {
                 if(RSI > settings.HIGHEST_RSI) {
                     console.log(`Exiting, RSI is ${RSI}, which is above ${settings.HIGHEST_RSI}`)
                     sendErrors(`Exiting, RSI is ${RSI}, which is above ${settings.HIGHEST_RSI}`)
                     return
                 }
                 // Initialize order options
-                sendDiscord(`There is $${acbl.USDT} in the account. => BUY order will be placed.`)
+                sendDiscord(`There is $${acbl.FIAT} in the account. => BUY order will be placed.`)
                 const buyPrice = Number(price.price*bottomBorder).toFixed(`${settings.PRECISION}`)
-                const buyQuantity = ((acbl.USDT-2)/buyPrice).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
+                const buyQuantity = ((acbl.FIAT-2)/buyPrice).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
                 const buyOptions = {
                     symbol: `${settings.MAIN_MARKET}`,
                     side: 'BUY',
@@ -261,7 +261,7 @@ setInterval(async() => {
                 }
  
             } else {
-                sendErrors(`Please add money to your account. You currently have only: $${acbl.USDT} and ${acbl.MAIN_ASSET}${settings.MAIN_ASSET}, which is insufficient.`)
+                sendErrors(`Please add money to your account. You currently have only: $${acbl.FIAT} and ${acbl.MAIN_ASSET}${settings.MAIN_ASSET}, which is insufficient.`)
             }
 
         }
