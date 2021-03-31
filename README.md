@@ -44,7 +44,7 @@ So far, when the WIGGLE_ROOM is set to 0.5% in the DENTUSDT market, the average 
 
 Just edit the `settings.json` file to include your own preferences and your available asset as the main asset then `docker-compose up` or `docker-compose up -d` depending on your kind of medicine.
 
-To run without Docker, edit the `settings.json` file accordingly and then run `npm install` then `npm run dev`.
+To run without Docker, edit the `settings.json` file accordingly and then run `npm install` inside the `/bot` folder then `npm run dev`.
 
 Add your suitable settings:
 
