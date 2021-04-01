@@ -31,14 +31,27 @@ setInterval(async() => {
     ;(async() => {
         const {balances} = await accountBalances()
     
-        for (let i in balances) {
-            if (balances[i].asset==`${settings.MAIN_ASSET}`) {
-                acbl.MAIN_ASSET = balances[i].free
+        if (balances) {
+            for (let i in balances) {
+                if (balances[i].asset==`${settings.MAIN_ASSET}`) {
+                    acbl.MAIN_ASSET = balances[i].free
+                }
+                if (balances[i].asset==`${settings.FIAT}`) {
+                    acbl.FIAT = balances[i].free
+                }
             }
-            if (balances[i].asset==`${settings.FIAT}`) {
-                acbl.FIAT = balances[i].free
+        } else {
+            const {assets} = await accountBalances()
+            for (let i in assets) {
+                if (assets[i].asset==`${settings.MAIN_ASSET}`) {
+                    acbl.MAIN_ASSET = assets[i].availableBalance
+                }
+                if (assets[i].asset==`${settings.FIAT}`) {
+                    acbl.FIAT = assets[i].availableBalance
+                } 
             }
         }
+        
     })();
     
     // Get the current price and also the latest two candle sticks
