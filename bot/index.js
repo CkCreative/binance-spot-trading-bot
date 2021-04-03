@@ -139,7 +139,8 @@ setInterval(async() => {
                 sendDiscord(`Sold. Placing a new order...`)
             }
 
-            if (latestOrder[0].side == 'SELL' || (latestOrder[0].status == 'CANCELED' && latestOrder[0].side == 'BUY')) {
+            // Guard against buyin if the sell order was cancelled
+            if ((latestOrder[0].side == 'SELL' && latestOrder[0].status == 'FILLED') || (latestOrder[0].status == 'CANCELED' && latestOrder[0].side == 'BUY')) {
                 if(RSI > settings.HIGHEST_RSI) {
                     console.log(`Exiting, RSI is ${RSI}, which is above ${settings.HIGHEST_RSI}`)
                     sendErrors(`Exiting, RSI is ${RSI}, which is above ${settings.HIGHEST_RSI}`)
@@ -176,8 +177,9 @@ setInterval(async() => {
     
             // Get the last buy price from the API, and if it less than the current price,
             // use the current price instead.
-            // If the last order is BUY and is FILLED, we can now SELL
-            if (latestOrder[0].status == 'FILLED' && latestOrder[0].side == 'BUY') {
+            // If the last order is BUY and is FILLED, we can now SELL, also keep selling is
+            // the SELL order was cancelled.
+            if ((latestOrder[0].status == 'FILLED' && latestOrder[0].side == 'BUY') || (latestOrder[0].status == 'CANCELED' && latestOrder[0].side == 'SELL')) {
                 let sellingPrice = Number(latestOrder[0].price*fullMultiplier).toFixed(`${settings.PRECISION}`)
                 sellingPrice = sellingPrice < current_price ? (current_price*fullMultiplier).toFixed(`${settings.PRECISION}`) : sellingPrice
                 const sellingQuantity = (acbl.MAIN_ASSET*0.98).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
