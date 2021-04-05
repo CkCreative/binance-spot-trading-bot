@@ -1,8 +1,10 @@
 const WebSocket = require('ws');
 import settings from '../settings.json'
+import { logger } from './utils'
+
 
 // Stream the price of the symbol
-export const coinPrice = function(symbol) {
+export const coinPrice = function (symbol) {
     let highest_price = 0
     let lowest_price = 0
     let percentage = 0
@@ -14,17 +16,17 @@ export const coinPrice = function(symbol) {
         highest_price = price > highest_price ? price : highest_price
         lowest_price = price < lowest_price ? price : lowest_price
 
-        // process.stdout.write(`Lowest: ${lowest_price}, Highest: ${highest_price}\t`);
+        logger.info(`Lowest: ${lowest_price}, Highest: ${highest_price}\t`);
 
-        percentage = ((highest_price - lowest_price)/lowest_price)*100
-        // process.stdout.write(`${percentage}%\n`);
+        percentage = ((highest_price - lowest_price) / lowest_price) * 100
+        logger.info(`${percentage}%\n`);
     });
 
     return {
-        get : function () {
+        get: function () {
             return [lowest_price, highest_price, percentage];
         },
-        reset : function () {
+        reset: function () {
             lowest_price = 0;
             highest_price = 0;
             percentage = 0;

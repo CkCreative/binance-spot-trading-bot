@@ -13,6 +13,10 @@
     "esm": "^3.2.25",
     "node-fetch": "^2.6.1",
     "sqlite3": "^5.0.2",
+    "winston": "^3.3.3",
     "ws": "^7.4.4"
+  },
+  "devDependencies": {
+    "eslint": "^7.23.0"
   }
 }
