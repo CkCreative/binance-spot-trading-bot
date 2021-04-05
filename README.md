@@ -92,6 +92,6 @@ You can run this bot anywhere. This includes on PC, Mac or Linux provided you ha
 
 - **Step 4**: Decide whether to use Binance backtesting API (testnet.binancefuture.com, recommended) or the main site (api.binance.com, only when sure should you do this). If you are going to use testnet, the URL value of the settings.json file should be: `"https://testnet.binancefuture.com/fapi/v1"`. Else use `"https://api.binance.com/api/v3"`.
 
-- **Step 5**: Edit other settings accordingly
+- **Step 5**: Edit other settings accordingly (Check the decimals here: [https://www.binance.com/en/trade-rule](https://www.binance.com/en/trade-rule))
 
 - **Step 6**: Run `npm run dev`
