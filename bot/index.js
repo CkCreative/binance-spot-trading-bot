@@ -19,7 +19,7 @@ import {
 const width = settings.WIGGLE_ROOM / 100
 const fullMultiplier = settings.WIGGLE_ROOM / 100 + 1
 let bottomBorder = 1 - Number(width)
-let cancelAfter = Number(settings.CANCEL_AFTER) * 60 * 60
+let cancelAfter = Number(settings.CANCEL_AFTER)
 
 let openOrders = []
 let latestOrder = [{
