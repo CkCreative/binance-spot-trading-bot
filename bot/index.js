@@ -20,6 +20,7 @@ const width = settings.WIGGLE_ROOM / 100
 const fullMultiplier = settings.WIGGLE_ROOM / 100 + 1
 let bottomBorder = 1 - Number(width)
 let cancelAfter = Number(settings.CANCEL_AFTER)
+const interval = Number(settings.INTERVAL)
 
 let openOrders = []
 let latestOrder = [{
@@ -206,4 +207,4 @@ setInterval(async () => {
         logger.error("There was an error..", error)
     }
 
-}, 3000);
+}, interval);

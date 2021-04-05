@@ -69,6 +69,7 @@ Add your suitable settings:
     "MAIN_ASSET_DECIMALS": 6, // INTEGER - THE NUMBER OF DECIMALS ALLOWED FOR QUANTITY OF THE MAIN ASSET THAT YOU ARE TRADING, E.G. 6 FOR BTC, 3 for testnet
     "CANCEL_AFTER": 300, // After how long in seconds should you cancel an order?
     "INSTANCE_NAME": "BTC", // If you are using the same Discord server to receive notifications from multiple instances, this makes it easy to know which instance is sending you a notification.
+    "INTERVAL": 3000, // How long before loop repeats in milliseconds
     "ACCEPTABLE_LOSS": 2, // this is not yet used in the logic
     "HIGHEST_RSI": 70, // INTEGER - HIGHEST RSI VALUE YOU WANT TO AVOID BUY
     "PRECISION": 2, // INTEGER - NUMBER OF DECIMAL PLACES ALLOWED FOR PRICE BY THE TRADING PAIR, E.G. 0.01 FOR BTCUSDT

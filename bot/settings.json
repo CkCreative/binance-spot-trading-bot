@@ -7,6 +7,7 @@
     "MAIN_MARKET": "BTCUSDT",
     "MAIN_ASSET": "BTC",
     "CANCEL_AFTER": 300,
+    "INTERVAL": 3000,
     "FIAT": "USDT",
     "INSTANCE_NAME": "BTC",
     "PRECISION": 2,
