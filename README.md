@@ -13,7 +13,7 @@ Discord Invite: [Join](https://discord.gg/GTfs6pQmXe)
 
 ## Caution
 
-⚠️ This is still alpha stuff under active development. Some things might not work as described yet.
+⚠️ This is still alpha stuff under active development. Some things might not work as described yet. Also, a lot of changes happening all over the place.
 
 ## Theory
 
