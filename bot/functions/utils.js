@@ -43,7 +43,7 @@ export const sendDiscord = (message) => {
 }
 // Send telegram messages, no fancy formatting, just the content of the message.
 const sendTelegram = (message) => {
-    fetch(`https://api.telegram.org/bot${settings.TELEGRAM_TOKEN}/sendMessage?chat_id=${settings.TELEGRAM_CHATID}&text=${message}`, {
+    fetch(`https://api.telegram.org/bot${settings.TELEGRAM_TOKEN}/sendMessage?chat_id=${settings.TELEGRAM_CHATID}&text=${settings.INSTANCE_NAME}: ${message}`, {
         method: 'POST',
 
     }).then(data => {
