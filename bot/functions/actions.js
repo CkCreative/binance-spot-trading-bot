@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 const crypto = require('crypto')
 
-import { sendDiscord, sendErrors, logger } from './utils'
+import { sendNotification, sendErrors, logger } from './utils'
 import settings from '../settings.json'
 
 const key = `${settings.API_SECRET}`
@@ -66,7 +66,7 @@ export const cancelStaleOrder = async function (openOrders, current_price, fullM
 
     if (openOrders[0].side == 'BUY') {
         cancelOrder(cancelOptions)
-        sendDiscord(`Order number ${cancelOptions.orderId} was stale and thus cancelled!`)
+        sendNotification(`Order number ${cancelOptions.orderId} was stale and thus cancelled!`)
         return
     }
 
@@ -75,7 +75,7 @@ export const cancelStaleOrder = async function (openOrders, current_price, fullM
         return
     } else {
         cancelOrder(cancelOptions)
-        sendDiscord(`Order number ${cancelOptions.orderId} was stale and thus cancelled!`)
+        sendNotification(`Order number ${cancelOptions.orderId} was stale and thus cancelled!`)
         return
     }
 
@@ -108,7 +108,7 @@ export const placeBuy = async function (acbl, latestOrder, bottomBorder, price, 
                 sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${orderOptions.quantity}`)
                 return
             }
-            sendDiscord(`New order placed for ${orderOptions.quantity}@${orderOptions.price} | ${orderOptions.side}`)
+            sendNotification(`New order placed for ${orderOptions.quantity}@${orderOptions.price} | ${orderOptions.side}`)
             return order
         }).catch((e) => {
             logger.error(e)
@@ -145,7 +145,7 @@ export const placeSell = async function (acbl, latestOrder, fullMultiplier, curr
                 sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellingOptions.quantity}`)
                 return
             }
-            sendDiscord(`New order placed for ${sellingOptions.quantity}@${sellingOptions.price} | ${sellingOptions.side}`)
+            sendNotification(`New order placed for ${sellingOptions.quantity}@${sellingOptions.price} | ${sellingOptions.side}`)
             return order
         }).catch((e) => {
             logger.error(e)
@@ -179,7 +179,7 @@ export const placeLowSell = async function (acbl, latestOrder, fullMultiplier, c
                 sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellingOptions.quantity}`)
                 return
             }
-            sendDiscord(`New order placed for ${sellingOptions.quantity}@${sellingOptions.price} | ${sellingOptions.side} - a possible loss`)
+            sendNotification(`New order placed for ${sellingOptions.quantity}@${sellingOptions.price} | ${sellingOptions.side} - a possible loss`)
             return order
         }).catch((e) => {
             logger.error(e)
@@ -197,7 +197,7 @@ export const placeInitialBuy = async function (acbl, RSI, bottomBorder, price) {
         return
     }
     // Initialize order options
-    sendDiscord(`There is $${acbl.FIAT} in the account. => BUY order will be placed.`)
+    sendNotification(`There is $${acbl.FIAT} in the account. => BUY order will be placed.`)
     const buyPrice = Number(price.price * bottomBorder).toFixed(`${settings.PRECISION}`)
     const buyQuantity = ((acbl.FIAT - 2) / buyPrice).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
     const buyOptions = {
@@ -218,7 +218,7 @@ export const placeInitialBuy = async function (acbl, RSI, bottomBorder, price) {
                 sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${buyOptions.quantity}`)
                 return
             }
-            sendDiscord(`New order placed for ${buyOptions.quantity}@${buyOptions.price} | ${buyOptions.side}`)
+            sendNotification(`New order placed for ${buyOptions.quantity}@${buyOptions.price} | ${buyOptions.side}`)
             return order
         }).catch((e) => {
             logger.error(e)
@@ -227,7 +227,7 @@ export const placeInitialBuy = async function (acbl, RSI, bottomBorder, price) {
 }
 
 export const placeInitialSell = async function (acbl, fullMultiplier) {
-    sendDiscord(`There is ${acbl.MAIN_ASSET} ${settings.MAIN_ASSET} in the account. => SELL order will be placed.`)
+    sendNotification(`There is ${acbl.MAIN_ASSET} ${settings.MAIN_ASSET} in the account. => SELL order will be placed.`)
     const sellPrice = Number(price.price * fullMultiplier).toFixed(`${settings.PRECISION}`)
     const sellQuantity = (acbl.MAIN_ASSET * 0.98).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
     const sellOptions = {
@@ -248,7 +248,7 @@ export const placeInitialSell = async function (acbl, fullMultiplier) {
                 sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellOptions.quantity}`)
                 return
             }
-            sendDiscord(`New order placed for ${sellOptions.quantity}@${sellOptions.price} | ${sellOptions.side}`)
+            sendNotification(`New order placed for ${sellOptions.quantity}@${sellOptions.price} | ${sellOptions.side}`)
             return order
         }).catch((e) => {
             logger.error(e)

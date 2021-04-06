@@ -5,7 +5,7 @@ import {
     accountBalances
 } from './functions/info'
 import settings from './settings.json'
-import { sendDiscord, getRSI, sendErrors, logger } from './functions/utils'
+import { sendNotification, getRSI, sendErrors, logger } from './functions/utils'
 import {
     cancelStaleOrder,
     placeBuy,
@@ -168,7 +168,7 @@ setInterval(async () => {
             }
 
         } else {
-            sendDiscord(`There is no open order currently. Deciding which side to start with...`)
+            sendNotification(`There is no open order currently. Deciding which side to start with...`)
 
             if (acbl.FIAT > 11) {
                 logger.info(`Placing initial BUY..`)

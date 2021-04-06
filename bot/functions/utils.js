@@ -19,6 +19,11 @@ export const logger = winston.createLogger({
         })
     ]
 });
+
+export const sendNotification = (message) => {
+    sendDiscord(`${message}`)
+    sendTelegram(`${message}`)
+}
 // Send discord messages, no fancy formatting, just the content of the message.
 export const sendDiscord = (message) => {
     fetch(`${settings.DISCORD}`, {
@@ -29,6 +34,18 @@ export const sendDiscord = (message) => {
         body: JSON.stringify({
             content: `${settings.INSTANCE_NAME}: ${message}`
         })
+    }).then(data => {
+        // console.log(data)
+    }).catch(e => {
+        logger.error(e)
+        // console.log(e)
+    })
+}
+// Send telegram messages, no fancy formatting, just the content of the message.
+const sendTelegram = (message) => {
+    fetch(`https://api.telegram.org/bot${settings.TELEGRAM_TOKEN}/sendMessage?chat_id=${settings.TELEGRAM_CHATID}&text=${message}`, {
+        method: 'POST',
+
     }).then(data => {
         // console.log(data)
     }).catch(e => {
