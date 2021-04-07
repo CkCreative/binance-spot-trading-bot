@@ -82,7 +82,7 @@ Add your suitable settings:
 }
 ```
 
- :warning: CAUTION:warning::: YOU WILL LOSE MONEY IF YOU SET A VALUE LESS THAN 1.
+ :warning: CAUTION for `BUYING_PRICE_DIVIDER`:warning::: YOU WILL LOSE MONEY IF YOU SET A VALUE LESS THAN 1.
 
 ## Detailed Installation Instructions
 
