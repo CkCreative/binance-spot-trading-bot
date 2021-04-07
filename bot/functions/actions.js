@@ -89,7 +89,7 @@ export const placeBuy = async function (acbl, latestOrder, bottomBorder, price, 
         return
     }
     const buyingPrice = Number(price.price * bottomBorder).toFixed(`${settings.PRECISION}`)
-    const quantityToBuy = ((acbl.FIAT - 2) / buyingPrice).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
+    const quantityToBuy = ((acbl.FIAT * 0.99) / buyingPrice).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
     // Initialize order options
     const orderOptions = {
         symbol: `${settings.MAIN_MARKET}`,
@@ -199,7 +199,7 @@ export const placeInitialBuy = async function (acbl, RSI, bottomBorder, price) {
     // Initialize order options
     sendNotification(`There is $${acbl.FIAT} in the account. => BUY order will be placed.`)
     const buyPrice = Number(price.price * bottomBorder).toFixed(`${settings.PRECISION}`)
-    const buyQuantity = ((acbl.FIAT - 2) / buyPrice).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
+    const buyQuantity = ((acbl.FIAT * 0.99) / buyPrice).toFixed(`${settings.MAIN_ASSET_DECIMALS}`)
     const buyOptions = {
         symbol: `${settings.MAIN_MARKET}`,
         side: 'BUY',
