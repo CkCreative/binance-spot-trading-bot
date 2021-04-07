@@ -16,9 +16,10 @@ import {
 } from './functions/actions'
 
 // Calculate the highest and lowest percentage multipliers according to the set WIGGLE_ROOM
-const width = settings.WIGGLE_ROOM / 100
+const width = Number(settings.WIGGLE_ROOM / 100)
+const divider = Number(settings.BUYING_PRICE_DIVIDER)
 const fullMultiplier = settings.WIGGLE_ROOM / 100 + 1
-let bottomBorder = 1 - Number(width)
+let bottomBorder = 1 - (width / divider)
 let cancelAfter = Number(settings.CANCEL_AFTER)
 const interval = Number(settings.INTERVAL)
 

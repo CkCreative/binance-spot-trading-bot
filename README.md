@@ -74,9 +74,11 @@ Add your suitable settings:
     "HIGHEST_RSI": 70, // INTEGER - HIGHEST RSI VALUE YOU WANT TO AVOID BUY
     "PRECISION": 2, // INTEGER - NUMBER OF DECIMAL PLACES ALLOWED FOR PRICE BY THE TRADING PAIR, E.G. 0.01 FOR BTCUSDT
     "DISCORD": "DISCORD_WEBHOOK_URL", // WHERE TO SEND BUY/SELL NOTIFICATIONS
-    "DISCORD_ERRORS": "DISCORD_WEBHOOK_URL_FOR_ERRORS" // WHERE TO SEND ERRORS    
-    "TELEGRAM_TOKEN": "" // TELEGRAM TOKEN
-    "TELEGRAM_CHATID": "" // TELEGRAM CHATID
+    "DISCORD_ERRORS": "DISCORD_WEBHOOK_URL_FOR_ERRORS", // WHERE TO SEND ERRORS    
+    "TELEGRAM_TOKEN": "", // TELEGRAM TOKEN
+    "TELEGRAM_CHATID": "", // TELEGRAM CHATID
+    "BUYING_PRICE_DIVIDER": 1 // This default value means the buying price is the current price minus the wiggle room. If you want to buy a little closer to the current price, increase this value.
+
 }
 ```
 
