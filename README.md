@@ -77,7 +77,7 @@ Add your suitable settings:
     "DISCORD_ERRORS": "DISCORD_WEBHOOK_URL_FOR_ERRORS", // WHERE TO SEND ERRORS    
     "TELEGRAM_TOKEN": "", // TELEGRAM TOKEN
     "TELEGRAM_CHATID": "", // TELEGRAM CHATID
-    "BUYING_PRICE_DIVIDER": 1 // This default value means the buying price is the current price minus the wiggle room. If you want to buy a little closer to the current price, increase this value.
+    "BUYING_PRICE_DIVIDER": 1 // This default value means the buying price is the current price minus the wiggle room. If you want to buy a little closer to the current price, increase this value.  :warning: CAUTION:warning::: YOU WILL LOSE MONEY IF YOU SET A VALUE LESS THAN 1.
 
 }
 ```
