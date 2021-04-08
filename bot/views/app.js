@@ -6,5 +6,5 @@ socket.on('pending', function (msg) {
     box.innerHTML = `Latest Order: | ${msg.origQty}@${msg.price} | ${msg.side} | ${msg.status}`
 });
 socket.on('ticker', function (msg) {
-    ticker.innerHTML = `Current Pricce: ${msg}`
+    ticker.innerHTML = `Current Price: ${msg}`
 });
