@@ -5,13 +5,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node -r esm index.js"
+    "dev": "nodemon -r esm server.js --ignore settings.json"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
     "esm": "^3.2.25",
+    "express": "^4.17.1",
     "node-fetch": "^2.6.1",
+    "pug": "^3.0.2",
+    "socket.io": "^4.0.1",
     "sqlite3": "^5.0.2",
     "winston": "^3.3.3",
     "ws": "^7.4.4"

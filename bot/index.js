@@ -4,7 +4,6 @@ import {
     checkPrice,
     accountBalances
 } from './functions/info'
-import settings from './settings.json'
 import { sendNotification, getRSI, sendErrors, logger } from './functions/utils'
 import {
     cancelStaleOrder,
@@ -14,14 +13,6 @@ import {
     placeLowSell,
     placeSell
 } from './functions/actions'
-
-// Calculate the highest and lowest percentage multipliers according to the set WIGGLE_ROOM
-const width = Number(settings.WIGGLE_ROOM / 100)
-const divider = Number(settings.BUYING_PRICE_DIVIDER)
-const fullMultiplier = settings.WIGGLE_ROOM / 100 + 1
-let bottomBorder = 1 - (width / divider)
-let cancelAfter = Number(settings.CANCEL_AFTER)
-const interval = Number(settings.INTERVAL)
 
 let openOrders = []
 let latestOrder = [{
@@ -33,7 +24,15 @@ let acbl = {
 }
 
 // The loop is set to poll the APIs in X milliseconds.
-setInterval(async () => {
+export const trade = async (settings, socket) => {
+    // Calculate the highest and lowest percentage multipliers according to the set WIGGLE_ROOM
+    const width = Number(settings.WIGGLE_ROOM / 100)
+    const divider = Number(settings.BUYING_PRICE_DIVIDER)
+    const fullMultiplier = (settings.WIGGLE_ROOM / 100) + 1
+    let bottomBorder = 1 - (width / divider)
+
+    let cancelAfter = Number(settings.CANCEL_AFTER)
+
     const openOptions = {
         symbol: `${settings.MAIN_MARKET}`,
         timestamp: Date.now()
@@ -71,7 +70,6 @@ setInterval(async () => {
             }
         }
     })();
-    // logger.info(acbl)
 
     // Get the current price and also the latest two candle sticks
     const price = await checkPrice(`${settings.MAIN_MARKET}`)
@@ -202,10 +200,12 @@ setInterval(async () => {
     // Log information in the console about the pending order
     try {
         if (latestOrder.length > 0) {
+            socket.emit('pending', latestOrder[0]);
+            socket.emit('ticker', current_price);
             logger.info(`Latest Order: | ${latestOrder[0].origQty}@${latestOrder[0].price} | ${latestOrder[0].side} | ${latestOrder[0].status}`)
         }
     } catch (error) {
         logger.error("There was an error..", error)
     }
 
-}, interval);
+};
