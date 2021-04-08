@@ -1,5 +1,7 @@
 # Binance Trading App (Bot)
 
+![Sample UI]('/ui.png')
+
 This is a Node.js binance trading bot that takes advantage of crypto's volatile prices.
 
 **NB: You will need a Binance account. [Register Here](https://accounts.binance.cc/en/register?ref=77939580)**
@@ -9,7 +11,6 @@ This is a Node.js binance trading bot that takes advantage of crypto's volatile 
 Join Discord channel to ask questions, or create an issue.
 
 Discord Invite: [Join](https://discord.gg/GTfs6pQmXe)
-
 
 ## Caution
 
@@ -77,7 +78,8 @@ Add your suitable settings:
     "DISCORD_ERRORS": "DISCORD_WEBHOOK_URL_FOR_ERRORS", // WHERE TO SEND ERRORS    
     "TELEGRAM_TOKEN": "", // TELEGRAM TOKEN
     "TELEGRAM_CHATID": "", // TELEGRAM CHATID
-    "BUYING_PRICE_DIVIDER": 1 // This default value means the buying price is the current price minus the wiggle room. If you want to buy a little closer to the current price, increase this value. 
+    "BUYING_PRICE_DIVIDER": 1, // This default value means the buying price is the current price minus the wiggle room. If you want to buy a little closer to the current price, increase this value. 
+    "PIN": 12345 // This is used in the UI. When you change this, you need to restart the bot.
 
 }
 ```
