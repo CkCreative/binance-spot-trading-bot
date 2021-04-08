@@ -1,6 +1,6 @@
 # Binance Trading App (Bot)
 
-![Sample UI]('/ui.png')
+![Sample UI]('./ui.png')
 
 This is a Node.js binance trading bot that takes advantage of crypto's volatile prices.
 
