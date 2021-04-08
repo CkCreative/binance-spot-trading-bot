@@ -1,7 +1,7 @@
 {
     "URL": "https://testnet.binancefuture.com/fapi/v1",
-    "API_SECRET": "0403e2671c036ad03611ee05eb229dbc88be6fdfbacbad21370673de679b0274",
-    "API_KEY": "9179bacc6f9bdae914be5ee2fcca34480282802602878d8a552315ed850ab202",
+    "API_SECRET": "",
+    "API_KEY": "",
     "STREAM_URL": "wss://testnet.binancefuture.com/ws",
     "WIGGLE_ROOM": 0.5,
     "MAIN_MARKET": "BTCUSDT",
@@ -17,7 +17,7 @@
     "MAX_AMOUNT": 1389,
     "DISCORD": "DISCORD_WEBHOOK_URL",
     "DISCORD_ERRORS": "DISCORD_WEBHOOK_URL_FOR_ERRORS",
-    "TELEGRAM_TOKEN": "1793729062:AAEOFzKEhM62ls1MRmumVtiqLPxea6EO_7w",
-    "TELEGRAM_CHATID": "-1001355825046",
+    "TELEGRAM_TOKEN": "",
+    "TELEGRAM_CHATID": "",
     "BUYING_PRICE_DIVIDER": 1
 }
