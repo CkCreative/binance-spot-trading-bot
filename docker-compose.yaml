@@ -4,6 +4,8 @@ services:
   bot:
     image: node:14
     restart: always
+    ports:
+      - "3000:3000"
     volumes:
       - ./bot:/usr/app
     command: bash -c "cd /usr/app && npm install && npm run dev"
