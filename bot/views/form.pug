@@ -23,60 +23,67 @@ html
                     button(type = "submit", class="btn btn-danger") STOP
 
         div(class="container pt-5 mg_bottom")
-            h3 Current Settings
-            hr
-            form(action = "/", method = "POST")
-                div
-                    label(for = "interval_value") INTERVAL:
-                    input(name = "interval_value", value = `${data.INTERVAL}`, class="form-control")
-                br
-                div
-                    label(for = "market") MAIN_MARKET:
-                    input(name = "market", value = `${data.MAIN_MARKET}`, class="form-control")
-                br
-                div
-                    label(for = "main") MAIN_ASSET:
-                    input(name = "main", value = `${data.MAIN_ASSET}`, class="form-control")
-                br
-                div
-                    label(for = "fiat") FIAT:
-                    input(name = "fiat", value = `${data.FIAT}`, class="form-control")
-                br
-                div
-                    label(for = "room") WIGGLE_ROOM:
-                    input(name = "room", step="any", value = `${data.WIGGLE_ROOM}`, type="number", class="form-control")
-                br
-                div
-                    label(for = "after") CANCEL_AFTER:
-                    input(name = "after", value = `${data.CANCEL_AFTER}`, type="number", class="form-control")
-                br
-                div
-                    label(for = "precision") FIAT_PRECISION:
-                    input(name = "precision", value = `${data.PRECISION}`, type="number", class="form-control")
-                br
-                div
-                    label(for = "main_asset_decimals") MAIN_ASSET_DECIMALS:
-                    input(name = "main_asset_decimals", value = `${data.MAIN_ASSET_DECIMALS}`, type="number", class="form-control")
-                br
-                div
-                    label(for = "instance") INSTANCE_NAME:
-                    input(name = "instance", value = `${data.INSTANCE_NAME}`, class="form-control")
-                br
-                div
-                    label(for = "divider") BUYING_PRICE_DIVIDER:
-                    input(name = "divider", value = `${data.BUYING_PRICE_DIVIDER}`, class="form-control")
-                br
-                div(class="form-group")
-                    label(for = "pin") PIN:
-                    input(name = "pin", type="password", class="form-control")
-                br
-                button(type = "submit", class="btn btn-primary btn-lg col-12") SAVE
+            div(class="row")
+                div(class="col-md mt-5")
+                    canvas(id="chart",width="300",height="400")
+                div(class="col-md")
+                    h3 Current Settings
+                    hr
+                    form(action = "/", method = "POST")
+                        div
+                            label(for = "interval_value") INTERVAL:
+                            input(name = "interval_value", value = `${data.INTERVAL}`, class="form-control")
+                        br
+                        div
+                            label(for = "market") MAIN_MARKET:
+                            input(name = "market", value = `${data.MAIN_MARKET}`, class="form-control")
+                        br
+                        div
+                            label(for = "main") MAIN_ASSET:
+                            input(name = "main", value = `${data.MAIN_ASSET}`, class="form-control")
+                        br
+                        div
+                            label(for = "fiat") FIAT:
+                            input(name = "fiat", value = `${data.FIAT}`, class="form-control")
+                        br
+                        div
+                            label(for = "room") WIGGLE_ROOM:
+                            input(name = "room", step="any", value = `${data.WIGGLE_ROOM}`, type="number", class="form-control")
+                        br
+                        div
+                            label(for = "after") CANCEL_AFTER:
+                            input(name = "after", value = `${data.CANCEL_AFTER}`, type="number", class="form-control")
+                        br
+                        div
+                            label(for = "precision") FIAT_PRECISION:
+                            input(name = "precision", value = `${data.PRECISION}`, type="number", class="form-control")
+                        br
+                        div
+                            label(for = "main_asset_decimals") MAIN_ASSET_DECIMALS:
+                            input(name = "main_asset_decimals", value = `${data.MAIN_ASSET_DECIMALS}`, type="number", class="form-control")
+                        br
+                        div
+                            label(for = "instance") INSTANCE_NAME:
+                            input(name = "instance", value = `${data.INSTANCE_NAME}`, class="form-control")
+                        br
+                        div
+                            label(for = "divider") BUYING_PRICE_DIVIDER:
+                            input(name = "divider", value = `${data.BUYING_PRICE_DIVIDER}`, class="form-control")
+                        br
+                        div(class="form-group")
+                            label(for = "pin") PIN:
+                            input(name = "pin", type="password", class="form-control")
+                        br
+                        button(type = "submit", class="btn btn-primary btn-lg col-12") SAVE
+                        br
             div(class="card text-center fixed-bottom")
                 div(class="card-header") Updates
                 ul(class="list-group list-group-flush")
                     li(class="list-group-item", id="box")
                     li(class="list-group-item", id="ticker")
         script(src="/socket.io/socket.io.js")
+        script(src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js")
+        script(src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js")
         script
             include app.js 
 

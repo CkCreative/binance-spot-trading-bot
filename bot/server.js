@@ -8,12 +8,12 @@ const io = require('socket.io')(server);
 
 import { trade } from './index'
 import { clearInterval } from 'timers'
-import { logger } from './functions/utils'
+import { logger, profitTracker } from './functions/utils'
 
 const port = 3000
 
 io.on('connection', (socket) => {
-    console.log('a user connected');
+    logger.info('a user connected');
 });
 
 app.set('view engine', 'pug');
@@ -25,7 +25,10 @@ let draft = setInterval(() => {
     trade(obj, io)
 }, obj.INTERVAL);
 
-
+// initialize profit tracker
+; (async () => {
+    await profitTracker(io, obj)
+})();
 
 app.get('/', (req, res) => {
     res.render('form', { data: obj });
@@ -99,5 +102,5 @@ app.post('/', (req, res) => {
 });
 
 server.listen(port, () => {
-    console.log(`Binance bot listening at http://localhost:${port}`)
+    logger.info(`Binance bot listening at http://localhost:${port}`)
 })

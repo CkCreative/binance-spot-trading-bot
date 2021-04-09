@@ -1,8 +1,9 @@
 const fetch = require('node-fetch');
 const winston = require('winston');
 const fs = require('fs');
+const cron = require('node-cron');
 
-import { avgPrice30 } from './info'
+import { avgPrice30, getAllOrders } from './info'
 import settings from '../settings.json'
 
 const logDir = 'logs';
@@ -88,4 +89,29 @@ export const getRSI = async function () {
     const RS = avgU / avgD
     const RSI = 100 - (100 / (1 + RS))
     return RSI
+}
+
+export const profitTracker = async (io, obj) => {
+    cron.schedule('* * * * *', async () => {
+
+        const orders = await getAllOrders({
+            symbol: `${obj.MAIN_MARKET}`,
+            timestamp: Date.now(),
+            startTime: Date.now() - (3600 * 1000 * 24)
+        }).catch((e) => {
+            logger.error(e)
+        });
+
+        let quantities = []
+        orders.forEach(element => {
+            if (element.status == 'FILLED' && element.side == 'SELL') {
+                quantities.push({
+                    y: Number(element.origQty),
+                    x: element.time
+                })
+            }
+        });
+
+        io.emit('quantities', quantities);
+    });
 }

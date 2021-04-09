@@ -68,6 +68,29 @@ export const allOrder = async function (o) {
     return json
 }
 
+// Check all the orders function, but then only gets the top order
+export const getAllOrders = async function (o) {
+    const to_sign = `symbol=${o.symbol}&recvWindow=60000&startTime=${o.startTime}&timestamp=${o.timestamp}`
+
+    const hmac = crypto.createHmac('sha256', key)
+        .update(to_sign)
+        .digest('hex')
+
+    const res = await fetch(`${settings.URL}/allOrders?${to_sign}&signature=${hmac}`, {
+        method: 'GET',
+        headers: {
+            'X-MBX-APIKEY': `${settings.API_KEY}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    const json = await res.json()
+    // if (json.msg) {
+    //     console.error(json)
+    //     return []
+    // }
+    return json
+}
+
 // Check the price of a given symbol
 export const checkPrice = async (symbol) => {
     const res = await fetch(`${settings.URL}/ticker/price?symbol=${symbol}`, { method: 'GET' })

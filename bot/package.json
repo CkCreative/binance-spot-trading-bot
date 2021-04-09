@@ -12,6 +12,7 @@
   "dependencies": {
     "esm": "^3.2.25",
     "express": "^4.17.1",
+    "node-cron": "^3.0.0",
     "node-fetch": "^2.6.1",
     "pug": "^3.0.2",
     "socket.io": "^4.0.1",
