@@ -65,22 +65,17 @@ Add your suitable settings:
     "API_KEY": "YOUR BINANCE API KEY", // STRING
     "WIGGLE_ROOM": 0.5, // FLOAT - THE PERCENTAGE MARGIN YOU ARE WILLING TO PLAY WITH
     "MAIN_MARKET": "BTCUSDT", // STRING - THE MARKET, E.G. BTCUSDT
-    "FIAT": "USDT", // DEPENDS ON THE MARKET ABOVE, E.G. USDT
-    "MAIN_ASSET": "BTC", // STRING - YOUR MAIN ASSET, E.G. BTC
-    "MAIN_ASSET_DECIMALS": 6, // INTEGER - THE NUMBER OF DECIMALS ALLOWED FOR QUANTITY OF THE MAIN ASSET THAT YOU ARE TRADING, E.G. 6 FOR BTC, 3 for testnet
     "CANCEL_AFTER": 300, // After how long in seconds should you cancel an order?
     "INSTANCE_NAME": "BTC", // If you are using the same Discord server to receive notifications from multiple instances, this makes it easy to know which instance is sending you a notification.
     "INTERVAL": 3000, // How long before loop repeats in milliseconds
     "ACCEPTABLE_LOSS": 2, // this is not yet used in the logic
     "HIGHEST_RSI": 70, // INTEGER - HIGHEST RSI VALUE YOU WANT TO AVOID BUY
-    "PRECISION": 2, // INTEGER - NUMBER OF DECIMAL PLACES ALLOWED FOR PRICE BY THE TRADING PAIR, E.G. 0.01 FOR BTCUSDT
     "DISCORD": "DISCORD_WEBHOOK_URL", // WHERE TO SEND BUY/SELL NOTIFICATIONS
     "DISCORD_ERRORS": "DISCORD_WEBHOOK_URL_FOR_ERRORS", // WHERE TO SEND ERRORS    
     "TELEGRAM_TOKEN": "", // TELEGRAM TOKEN
     "TELEGRAM_CHATID": "", // TELEGRAM CHATID
     "BUYING_PRICE_DIVIDER": 1, // This default value means the buying price is the current price minus the wiggle room. If you want to buy a little closer to the current price, increase this value. 
     "PIN": 12345 // This is used in the UI. When you change this, you need to restart the bot.
-
 }
 ```
 
@@ -100,6 +95,31 @@ You can run this bot anywhere. This includes on PC, Mac or Linux provided you ha
 
 - **Step 4**: Decide whether to use Binance backtesting API (testnet.binancefuture.com, recommended) or the main site (api.binance.com, only when sure should you do this). If you are going to use testnet, the URL value of the settings.json file should be: `"https://testnet.binancefuture.com/fapi/v1"`. Else use `"https://api.binance.com/api/v3"`.
 
-- **Step 5**: Edit other settings accordingly (Check the decimals here: [https://www.binance.com/en/trade-rule](https://www.binance.com/en/trade-rule))
+- **Step 5**: Edit other settings accordingly.
 
 - **Step 6**: Run `npm run dev`
+
+## Known Issues
+
+When you configure the bot to a new market, sometimes it fails to pick up buyin or selling. In this case, simply place an order that won't be filled instantly, for example, a very low buy order or a very high sell order, then, start up the bot and cancel the order thereafter. The bot should pick up from where it left.
+
+## Contributors
+
+### Owners
+
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/aem"><img src="https://avatars.githubusercontent.com/u/15129817?v=4" width="100px;" alt=""/><br /><sub><b>Mike CK</b></sub></a><br />Creator</td>
+  </tr>
+</table>
+
+## Feature contributors
+<!-- prettier-ignore-start -->
+<table>
+  <tr>
+    <td align="center"><a href="http://robdrosenberg.com"><img src="https://avatars.githubusercontent.com/u/2761812?v=4" width="100px;" alt=""/><br /><sub><b>Lownoise</b></sub></a><br />Telegram Integration and more</td>
+  </tr>
+</table>
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->

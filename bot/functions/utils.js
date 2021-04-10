@@ -72,10 +72,10 @@ export const sendErrors = (message) => {
     })
 }
 
-export const getRSI = async function () {
+export const getRSI = async function (st) {
     let upMoves = 0
     let downMoves = 0
-    const averagePrice = await avgPrice30(`${settings.MAIN_MARKET}`)
+    const averagePrice = await avgPrice30(`${st.MAIN_MARKET}`, st)
     averagePrice.forEach((element, index) => {
         if (element[1] < element[4]) {
             upMoves += 1
@@ -91,16 +91,14 @@ export const getRSI = async function () {
     return RSI
 }
 
-export const profitTracker = async (io, obj) => {
-    cron.schedule('* * * * *', async () => {
-
+// profit checking function
+const check = async function (io, obj) {
+    try {
         const orders = await getAllOrders({
             symbol: `${obj.MAIN_MARKET}`,
             timestamp: Date.now(),
             startTime: Date.now() - (3600 * 1000 * 24)
-        }).catch((e) => {
-            logger.error(e)
-        });
+        }, obj)
 
         let quantities = []
         orders.forEach(element => {
@@ -113,5 +111,22 @@ export const profitTracker = async (io, obj) => {
         });
 
         io.emit('quantities', quantities);
+    } catch (error) {
+        logger.error(error)
+    }
+
+}
+
+// check profit utility, check initially, and then schedule a check every one minute
+export const profitTracker = async (io, obj) => {
+
+    // initial check
+    await check(io, obj)
+
+    cron.schedule('* * * * *', async () => {
+
+        // subsequent checks by the minute
+        await check(io, obj)
     });
 }
+

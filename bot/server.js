@@ -9,6 +9,7 @@ const io = require('socket.io')(server);
 import { trade } from './index'
 import { clearInterval } from 'timers'
 import { logger, profitTracker } from './functions/utils'
+import { exchangeInfo } from './functions/info'
 
 const port = 3000
 
@@ -21,9 +22,22 @@ app.set('views', './views');
 app.use(express.urlencoded({ extended: true }));
 
 let obj = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
-let draft = setInterval(() => {
-    trade(obj, io)
-}, obj.INTERVAL);
+let info = {
+    minOrder: 0,
+    minQty: 0,
+    baseAsset: '',
+    quoteAsset: '',
+    quoteAssetPrecision: 0
+}
+
+let draft
+    ; (async () => {
+        info = { ...await exchangeInfo(obj) }
+        obj.info = info
+        draft = setInterval(() => {
+            trade(obj, io)
+        }, obj.INTERVAL);
+    })();
 
 // initialize profit tracker
 ; (async () => {
@@ -63,24 +77,16 @@ app.post('/', (req, res) => {
     let { pin,
         interval_value,
         market,
-        main,
-        fiat,
         room,
         after,
-        precision,
-        main_asset_decimals,
         instance,
         divider
     } = req.body
 
     obj.INTERVAL = interval_value
     obj.MAIN_MARKET = market
-    obj.MAIN_ASSET = main
-    obj.FIAT = fiat
     obj.CANCEL_AFTER = after
-    obj.PRECISION = precision
     obj.WIGGLE_ROOM = room
-    obj.MAIN_ASSET_DECIMALS = main_asset_decimals
     obj.INSTANCE_NAME = instance
     obj.BUYING_PRICE_DIVIDER = divider
 
@@ -88,11 +94,15 @@ app.post('/', (req, res) => {
         fs.writeFileSync('settings.json', JSON.stringify(obj, null, 2));
 
         obj = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
+        ; (async () => {
+            info = { ...await exchangeInfo(obj) }
+            obj.info = info
 
-        clearInterval(draft)
-        draft = setInterval(() => {
-            trade(obj, io)
-        }, obj.INTERVAL);
+            clearInterval(draft)
+            draft = setInterval(() => {
+                trade(obj, io)
+            }, obj.INTERVAL);
+        })();
 
         res.redirect('/');
     } else {
