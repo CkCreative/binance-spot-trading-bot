@@ -110,7 +110,7 @@ When you configure the bot to a new market, sometimes it fails to pick up buyin 
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="https://github.com/aem"><img src="https://avatars.githubusercontent.com/u/15129817?v=4" width="100px;" alt=""/><br /><sub><b>Mike CK</b></sub></a><br />Creator</td>
+    <td align="center"><a href="https://github.com/CkCreative"><img src="https://avatars.githubusercontent.com/u/15129817?v=4" width="100px;" alt=""/><br /><sub><b>Mike CK</b></sub></a><br />Creator</td>
   </tr>
 </table>
 
@@ -118,7 +118,7 @@ When you configure the bot to a new market, sometimes it fails to pick up buyin 
 <!-- prettier-ignore-start -->
 <table>
   <tr>
-    <td align="center"><a href="http://robdrosenberg.com"><img src="https://avatars.githubusercontent.com/u/2761812?v=4" width="100px;" alt=""/><br /><sub><b>Lownoise</b></sub></a><br />Telegram Integration and more</td>
+    <td align="center"><a href="https://github.com/lownoise2"><img src="https://avatars.githubusercontent.com/u/2761812?v=4" width="100px;" alt=""/><br /><sub><b>Lownoise</b></sub></a><br />Telegram Integration and more</td>
   </tr>
 </table>
 <!-- markdownlint-enable -->
