@@ -71,7 +71,9 @@ Add your suitable settings:
     "ACCEPTABLE_LOSS": 2, // this is not yet used in the logic
     "HIGHEST_RSI": 70, // INTEGER - HIGHEST RSI VALUE YOU WANT TO AVOID BUY
     "DISCORD": "DISCORD_WEBHOOK_URL", // WHERE TO SEND BUY/SELL NOTIFICATIONS
-    "DISCORD_ERRORS": "DISCORD_WEBHOOK_URL_FOR_ERRORS", // WHERE TO SEND ERRORS    
+    "DISCORD_ERRORS": "DISCORD_WEBHOOK_URL_FOR_ERRORS", // WHERE TO SEND ERRORS
+    "ASSET_PERCENT": 99, // the percentage of main asset to sell. Max value = 99
+    "FIAT_OR_QUOTE_PERCENT": 99, // percentage of the bridge/fiat/quote coin to use when buying. Max value = 99
     "TELEGRAM_TOKEN": "", // TELEGRAM TOKEN
     "TELEGRAM_CHATID": "", // TELEGRAM CHATID
     "BUYING_PRICE_DIVIDER": 1, // This default value means the buying price is the current price minus the wiggle room. If you want to buy a little closer to the current price, increase this value. 

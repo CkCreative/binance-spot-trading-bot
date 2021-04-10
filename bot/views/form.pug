@@ -43,6 +43,14 @@ html
                             input(name = "room", step="any", value = `${data.WIGGLE_ROOM}`, type="number", class="form-control")
                         br
                         div
+                            label(for = "asset_pct") ASSET_PERCENT:
+                            input(name = "asset_pct", step="any", value = `${data.ASSET_PERCENT}`, type="number", class="form-control")
+                        br
+                        div
+                            label(for = "fiat_or_quote_pct") FIAT_OR_QUOTE_PERCENT:
+                            input(name = "fiat_or_quote_pct", step="any", value = `${data.FIAT_OR_QUOTE_PERCENT}`, type="number", class="form-control")
+                        br
+                        div
                             label(for = "after") CANCEL_AFTER:
                             input(name = "after", value = `${data.CANCEL_AFTER}`, type="number", class="form-control")
                         br

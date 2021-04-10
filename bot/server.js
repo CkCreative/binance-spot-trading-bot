@@ -78,6 +78,8 @@ app.post('/', (req, res) => {
         interval_value,
         market,
         room,
+        asset_pct,
+        fiat_or_quote_pct,
         after,
         instance,
         divider
@@ -87,6 +89,8 @@ app.post('/', (req, res) => {
     obj.MAIN_MARKET = market
     obj.CANCEL_AFTER = after
     obj.WIGGLE_ROOM = room
+    obj.ASSET_PERCENT = asset_pct
+    obj.FIAT_OR_QUOTE_PERCENT = fiat_or_quote_pct
     obj.INSTANCE_NAME = instance
     obj.BUYING_PRICE_DIVIDER = divider
 

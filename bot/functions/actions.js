@@ -85,8 +85,9 @@ export const placeBuy = async function (acbl, latestOrder, bottomBorder, price, 
         sendErrors(`Exiting, RSI is ${RSI}, which is above ${st.HIGHEST_RSI}`)
         return
     }
+    const fiat_pct = Number(st.FIAT_OR_QUOTE_PERCENT) / 100
     const buyingPrice = Number(price.price * bottomBorder).toFixed(`${st.info.quoteAssetPrecision}`)
-    const quantityToBuy = ((acbl.FIAT * 0.99) / buyingPrice).toFixed(`${st.info.minQty}`)
+    const quantityToBuy = ((acbl.FIAT * fiat_pct) / buyingPrice).toFixed(`${st.info.minQty}`)
     // Initialize order options
     const orderOptions = {
         symbol: `${st.MAIN_MARKET}`,
@@ -111,7 +112,7 @@ export const placeBuy = async function (acbl, latestOrder, bottomBorder, price, 
             logger.error(e)
         });
     } else if ((quantityToBuy * buyingPrice) <= Number(st.info.minOrder)) {
-        logger.error(`You cannot place a buy order for less than ${Number(st.info.minOrder)} ${st.quoteAsset}`)
+        logger.error(`You cannot buy with ${acbl.FIAT}. It is less than the minimum ${Number(st.info.minOrder)} ${st.info.quoteAsset}`)
     } else {
         logger.error('There was an error placing BUY order.')
         return latestOrder[0]
@@ -122,10 +123,11 @@ export const placeSell = async function (acbl, latestOrder, fullMultiplier, curr
     // Get the last buy price from the API, and if it less than the current price,
     // use the current price instead.
     // If the last order is BUY and is FILLED, we can now SELL, also RESELL if it was cancelled SELL
+    const asset_pct = Number(st.ASSET_PERCENT) / 100
 
     let sellingPrice = Number(latestOrder[0].price * fullMultiplier).toFixed(`${st.info.quoteAssetPrecision}`)
     sellingPrice = sellingPrice < current_price ? (current_price * fullMultiplier).toFixed(`${st.info.quoteAssetPrecision}`) : sellingPrice
-    const sellingQuantity = (acbl.MAIN_ASSET * 0.98).toFixed(`${st.info.minQty}`)
+    const sellingQuantity = (acbl.MAIN_ASSET * asset_pct).toFixed(`${st.info.minQty}`)
     const sellingOptions = {
         symbol: `${st.MAIN_MARKET}`,
         side: 'SELL',
@@ -157,9 +159,10 @@ export const placeSell = async function (acbl, latestOrder, fullMultiplier, curr
 
 export const placeLowSell = async function (acbl, latestOrder, fullMultiplier, current_price, st) {
     // Sell at a small loss.
+    const asset_pct = Number(st.ASSET_PERCENT) / 100
     let sellingPrice = Number(current_price * fullMultiplier).toFixed(`${st.info.quoteAssetPrecision}`)
     //sellingPrice = sellingPrice < current_price ? (current_price*fullMultiplier).toFixed(`${st.info.quoteAssetPrecision}`) : sellingPrice
-    const sellingQuantity = (acbl.MAIN_ASSET * 0.98).toFixed(`${st.info.minQty}`)
+    const sellingQuantity = (acbl.MAIN_ASSET * asset_pct).toFixed(`${st.info.minQty}`)
     const sellingOptions = {
         symbol: `${st.MAIN_MARKET}`,
         side: 'SELL',
@@ -197,8 +200,9 @@ export const placeInitialBuy = async function (acbl, RSI, bottomBorder, price, s
     }
     // Initialize order options
     sendNotification(`There is $${acbl.FIAT} in the account. => BUY order will be placed.`)
+    const fiat_pct = Number(st.FIAT_OR_QUOTE_PERCENT) / 100
     const buyPrice = Number(price.price * bottomBorder).toFixed(`${st.info.quoteAssetPrecision}`)
-    const buyQuantity = ((acbl.FIAT * 0.99) / buyPrice).toFixed(`${st.info.minQty}`)
+    const buyQuantity = ((acbl.FIAT * fiat_pct) / buyPrice).toFixed(`${st.info.minQty}`)
     const buyOptions = {
         symbol: `${st.MAIN_MARKET}`,
         side: 'BUY',
@@ -227,8 +231,9 @@ export const placeInitialBuy = async function (acbl, RSI, bottomBorder, price, s
 
 export const placeInitialSell = async function (acbl, fullMultiplier, st) {
     sendNotification(`There is ${acbl.MAIN_ASSET} ${st.info.baseAsset} in the account. => SELL order will be placed.`)
+    const asset_pct = Number(st.ASSET_PERCENT) / 100
     const sellPrice = Number(price.price * fullMultiplier).toFixed(`${st.info.quoteAssetPrecision}`)
-    const sellQuantity = (acbl.MAIN_ASSET * 0.98).toFixed(`${st.info.minQty}`)
+    const sellQuantity = (acbl.MAIN_ASSET * asset_pct).toFixed(`${st.info.minQty}`)
     const sellOptions = {
         symbol: `${st.MAIN_MARKET}`,
         side: 'SELL',

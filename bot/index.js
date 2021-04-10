@@ -145,12 +145,12 @@ export const trade = async (settings, socket) => {
         } else {
             sendNotification(`There is no open order currently. Deciding which side to start with...`)
 
-            if (acbl.FIAT > 11) {
+            if (acbl.FIAT > Number(settings.info.minOrder)) {
                 logger.info(`Placing initial BUY..`)
                 latestOrder[0] = await placeInitialBuy(acbl, RSI, bottomBorder, price, settings)
                 return
 
-            } else if (acbl.MAIN_ASSET * price.price > 11) {
+            } else if (acbl.MAIN_ASSET * price.price > Number(settings.info.minOrder)) {
                 // Initialize order options
                 logger.info(`Placing initial SELL..`)
                 latestOrder[0] = await placeInitialSell(acbl, fullMultiplier, settings)
