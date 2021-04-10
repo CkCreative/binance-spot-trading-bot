@@ -6,11 +6,25 @@ This is a Node.js binance trading bot that takes advantage of crypto's volatile 
 
 **NB: You will need a Binance account. [Register Here](https://accounts.binance.cc/en/register?ref=77939580)**
 
-## Support
+## Get Support
 
 Join Discord channel to ask questions, or create an issue.
 
 Discord Invite: [Join](https://discord.gg/GTfs6pQmXe)
+
+## Support the Project
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><sub><b>Bitcoin (BTC)</b></sub><br />bc1qupg7z6s58r8k5eapzt2lk0z8k93zhj6m2wa42j</td>
+    <td align="center"><sub><b>Binance Coin (BNB)</b></sub><br />bnb1cs9udthcf49mkqsn5ekrx9qzw53tq4g2g44ud6</td>
+  </tr>
+  <tr>
+    <td align="center"><sub><b>Dogecoin (DOGE)</b></sub><br />D83rWMHxyUirBiuA8f7R8BoN3aW3fzWWTH</td>
+    <td align="center"><sub><b>Ethereum (ETH)</b></sub><br />0x1eAC963331A1C86868b9DF105C9a443A6CdD0F8f</td>
+  </tr>
+</table>
+<!-- markdownlint-enable -->
 
 ## Caution
 
