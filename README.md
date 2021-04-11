@@ -42,31 +42,31 @@ If you place an order at the bottom of the curve by mistake, the graph can conti
 
 When the graph is already at the top of the oscillation when buying, even though we guard against this by doing averages, the selling price will be untouchable. So you have to sit and wait until the curve is high enough again so you can sell to remain profitable, this can mean a pause longer than a day.
 
-At the moment, it is not possible to just cancel and place it anywhere else for the sake of it, the bot is not accepting losses yet. Until it can, we have to sit and wait.
+~~At the moment, it is not possible to just cancel and place it anywhere else for the sake of it, the bot is not accepting losses yet. Until it can, we have to sit and wait.~~ The bot now accepts losses. Just cancel the sell order manually and the bot will place a lower one, although slightly higher than the current price. I do this when I notice the price is now stable yet way below where the selling price is. It helps me collect more coin, even when the dollar value is less.
 
-Also, when the main asset tanks, you will go down with it, however, the tanking is not always very fast, so it is possible to place orders as it goes down unless you bought at the absolute top, which means you will have to sit and wait for a reealy loong time!
+Another risk is, when the main asset tanks, you will go down with it, however, the tanking is not always very fast, so it is possible to place orders as it goes down unless you bought at the absolute top, which means you will have to sit and wait for a reealy loong time!
 
 ## Target
 
-From initial tests, using Binance Backtesting API for futures trading, when the WIGGLE_ROOM is set to 0.3%, the number of trades averages between 2-3 in one hour. This means that considering the fees are 0.1%, you remain with 0.1%*3 which implies that you can make up to 0.3% of 98% of your principal amount every one hour. In 24 hours, if all goes well being overly optimistic, you can make between 4-7% of 98% of your principal. (The 98% comes from trading at least 98% of your mmain asset)
+From initial tests, using Binance Backtesting API for futures trading, when the WIGGLE_ROOM is set to 0.3%, the number of trades averages between 2-3 in one hour. This means that considering the fees are 0.1%, you remain with 0.1%*3 which implies that you can make up to 0.3% of 98% of your principal amount every one hour. In 24 hours, if all goes well being overly optimistic, you can make between 4-7% of 98% of your principal. (The 98% comes from trading at least 98% of your main asset, see settings)
 
-So say you started with 1000 USD, 98% of that is 980USD. Then, 4-7% of that is about 40-70USD each day. Which is decent to be honest.
+So say you started with 1000 USD, and set `"ASSET_PERCENT": 98.` 98% of 1000 is 980USD. Then, 4-7% of that is about 40-70USD each day. Which is decent to be honest.
 
-So far, when the WIGGLE_ROOM is set to 0.5% in the DENTUSDT market, the average return is about 0.6% in 4 hours, translating to around 2-4% each day. Quite decent!
+While testing on a real market, when the WIGGLE_ROOM was set to 0.5% in the DENTUSDT market, the average return came to about 0.6% in 4 hours, translating to around 2-4% each day. Quite decent!
 
 ## Future Improvements
 
 - Ability to trade multiple pairs.
 - Ability to automatically determine the WIGGLE_ROOM for any given asset at any given time since the curves are not always just small fluctuations but giant leaps at times.
-- Ability to take short term losses by selling low so as to keep following the curve.
-- Ability to calculate and report profits at different times of the day depending on all the successful trades.
-- Make it more configurable, everything should be configured even through an API, not necessarily through the settings file.
-- Ability to send notifications to many other channels, e.g. Telegram, Slack
-- Ability to consider TA indicators
+- Ability to take short term losses by selling low so as to keep following the curve. ✔️
+- Ability to calculate and report profits at different times of the day depending on all the successful trades. ✔️
+- Make it more configurable, everything should be configured even through an API, not necessarily through the settings file. ✔️ (UI now available)
+- Ability to send notifications to many other channels, e.g. Telegram, Slack ✔️ Telegram now available
+- Ability to consider TA indicators - partially - considering rough RSI for now.
 
 ## Running the Bot
 
-Just edit the `settings.json` file to include your own preferences and your available asset as the main asset then `docker-compose up` or `docker-compose up -d` depending on your kind of medicine.
+Just edit the `settings.json` file to include your own preferences and your preferred market, your preferred market should have money, then `docker-compose up` or `docker-compose up -d` depending on your kind of medicine.
 
 To run without Docker, edit the `settings.json` file accordingly and then run `npm install` inside the `/bot` folder then `npm run dev`.
 
@@ -105,11 +105,11 @@ You can run this bot anywhere. This includes on PC, Mac or Linux provided you ha
 
 - **Step 1**: Install Node.js (tested on v14 LTS)
 
-- **Step 2**: clone the repository and then `cd` into the cloned directory, `cd` into the bot directory and run `npm install`
+- **Step 2**: clone the repository and then `cd` into the cloned directory, `cd` into the `/bot` directory and run `npm install`
 
-- **Step 3**: Go to binance and obtain your settings i.e. The API KEY and the API SECRET. Remember that if you are going to be using Binance testnet, you need to use the testnet API_KEY and SECRET associated with your testin account at [https://testnet.binancefuture.com](https://testnet.binancefuture.com). If you use the main Binance site, use the API_KEY and SECRET associated with your trading account.
+- **Step 3**: Go to binance and obtain your settings i.e. The `API KEY` and the `API SECRET`. Remember that if you are going to be using Binance testnet, you need to use the testnet `API_KEY` and `SECRET` associated with your testing account at [https://testnet.binancefuture.com](https://testnet.binancefuture.com). If you use the main Binance site, use the `API_KEY` and `SECRET` associated with your trading account.
 
-- **Step 4**: Decide whether to use Binance backtesting API (testnet.binancefuture.com, recommended) or the main site (api.binance.com, only when sure should you do this). If you are going to use testnet, the URL value of the settings.json file should be: `"https://testnet.binancefuture.com/fapi/v1"`. Else use `"https://api.binance.com/api/v3"`.
+- **Step 4**: Decide whether to use Binance backtesting API (`https://testnet.binancefuture.com/fapi/v1`, recommended) or the main site to use real money (`https://api.binance.com/api/v3`, only when sure should you do this). If you are going to use testnet, the URL value of the settings.json file should be: `"https://testnet.binancefuture.com/fapi/v1"`. Else use `"https://api.binance.com/api/v3"` for main account.
 
 - **Step 5**: Edit other settings accordingly.
 
@@ -117,7 +117,7 @@ You can run this bot anywhere. This includes on PC, Mac or Linux provided you ha
 
 ## Known Issues
 
-When you configure the bot to a new market, sometimes it fails to pick up buyin or selling. In this case, simply place an order that won't be filled instantly, for example, a very low buy order or a very high sell order, then, start up the bot and cancel the order thereafter. The bot should pick up from where it left.
+When you configure the bot to a new market, sometimes it fails to pick up buyin or selling. In this case, simply place an order that won't be filled instantly, for example, a very low buy order or a very high sell order, then, start up the bot and cancel the order thereafter. The bot should pick up from there.
 
 ## Contributors
 
@@ -139,3 +139,7 @@ When you configure the bot to a new market, sometimes it fails to pick up buyin 
 </table>
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
+
+## License
+
+[MIT](license.md)
