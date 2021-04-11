@@ -115,6 +115,6 @@ app.post('/', (req, res) => {
 
 });
 
-server.listen(port, () => {
+server.listen(port, '0.0.0.0', () => {
     logger.info(`Binance bot listening at http://localhost:${port}`)
 })
