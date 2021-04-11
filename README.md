@@ -30,7 +30,7 @@ Discord Invite: [Join](https://discord.gg/GTfs6pQmXe)
 
 ⚠️ This is still alpha stuff under active development. Some things might not work as described yet. Also, a lot of changes happening all over the place.
 
-## Theory
+## Theory (Wiggle Theory 😜)
 
 The prices of crypto go up and come down very fast, creating a gap of at least 0.5% every 5 minutes or so. That is for the more stable ones, like BTC. The rest even create a gap of up to 1.5% between the highest and lowest prices every 5 minutes! I call that gap WIGGLE_ROOM. 😉
 
