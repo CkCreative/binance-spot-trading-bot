@@ -63,16 +63,16 @@ export const cancelStaleOrder = async function (openOrders, current_price, fullM
 
     if (openOrders[0].side == 'BUY') {
         cancelOrder(cancelOptions, st)
-        sendNotification(`Order number ${cancelOptions.orderId} was stale and thus cancelled!`)
+        sendNotification(`Order number ${cancelOptions.orderId} was stale and thus cancelled!`, st)
         return
     }
 
     if (openOrders[0].side == 'SELL' && possibleLoss > st.ACCEPTABLE_LOSS) {
-        sendErrors(`Possible loss ${possibleLoss}% if sold at ${Number(current_price * fullMultiplier).toFixed(`${st.info.quoteAssetPrecision} => Order not cancelled.`)}`)
+        sendErrors(`Possible loss ${possibleLoss}% if sold at ${Number(current_price * fullMultiplier).toFixed(`${st.info.quoteAssetPrecision} => Order not cancelled.`)}`, st)
         return
     } else {
         cancelOrder(cancelOptions, st)
-        sendNotification(`Order number ${cancelOptions.orderId} was stale and thus cancelled!`)
+        sendNotification(`Order number ${cancelOptions.orderId} was stale and thus cancelled!`, st)
         return
     }
 
@@ -82,7 +82,7 @@ export const placeBuy = async function (acbl, latestOrder, bottomBorder, price, 
 
     if (RSI > st.HIGHEST_RSI) {
         logger.error(`Exiting, RSI is ${RSI}, which is above ${st.HIGHEST_RSI}`)
-        sendErrors(`Exiting, RSI is ${RSI}, which is above ${st.HIGHEST_RSI}`)
+        sendErrors(`Exiting, RSI is ${RSI}, which is above ${st.HIGHEST_RSI}`, st)
         return
     }
     const fiat_pct = Number(st.FIAT_OR_QUOTE_PERCENT) / 100
@@ -103,10 +103,10 @@ export const placeBuy = async function (acbl, latestOrder, bottomBorder, price, 
         placeOrder(orderOptions, st).then(order => {
             if (order.msg) {
                 logger.error(order)
-                sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${orderOptions.quantity}`)
+                sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${orderOptions.quantity}`, st)
                 return
             }
-            sendNotification(`New order placed for ${orderOptions.quantity}@${orderOptions.price} | ${orderOptions.side}`)
+            sendNotification(`New order placed for ${orderOptions.quantity}@${orderOptions.price} | ${orderOptions.side}`, st)
             return order
         }).catch((e) => {
             logger.error(e)
@@ -143,10 +143,10 @@ export const placeSell = async function (acbl, latestOrder, fullMultiplier, curr
         placeOrder(sellingOptions, st).then(order => {
             if (order.msg) {
                 logger.error(order)
-                sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellingOptions.quantity}`)
+                sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellingOptions.quantity}`, st)
                 return
             }
-            sendNotification(`New order placed for ${sellingOptions.quantity}@${sellingOptions.price} | ${sellingOptions.side}`)
+            sendNotification(`New order placed for ${sellingOptions.quantity}@${sellingOptions.price} | ${sellingOptions.side}`, st)
             return order
         }).catch((e) => {
             logger.error(e)
@@ -178,10 +178,10 @@ export const placeLowSell = async function (acbl, latestOrder, fullMultiplier, c
         placeOrder(sellingOptions, st).then(order => {
             if (order.msg) {
                 logger.error(order)
-                sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellingOptions.quantity}`)
+                sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellingOptions.quantity}`, st)
                 return
             }
-            sendNotification(`New order placed for ${sellingOptions.quantity}@${sellingOptions.price} | ${sellingOptions.side} - a possible loss`)
+            sendNotification(`New order placed for ${sellingOptions.quantity}@${sellingOptions.price} | ${sellingOptions.side} - a possible loss`, st)
             return order
         }).catch((e) => {
             logger.error(e)
@@ -195,11 +195,11 @@ export const placeLowSell = async function (acbl, latestOrder, fullMultiplier, c
 export const placeInitialBuy = async function (acbl, RSI, bottomBorder, price, st) {
     if (RSI > st.HIGHEST_RSI) {
         logger.error(`Exiting, RSI is ${RSI}, which is above ${st.HIGHEST_RSI}`)
-        sendErrors(`Exiting, RSI is ${RSI}, which is above ${st.HIGHEST_RSI}`)
+        sendErrors(`Exiting, RSI is ${RSI}, which is above ${st.HIGHEST_RSI}`, st)
         return
     }
     // Initialize order options
-    sendNotification(`There is $${acbl.FIAT} in the account. => BUY order will be placed.`)
+    sendNotification(`There is $${acbl.FIAT} in the account. => BUY order will be placed.`, st)
     const fiat_pct = Number(st.FIAT_OR_QUOTE_PERCENT) / 100
     const buyPrice = Number(price.price * bottomBorder).toFixed(`${st.info.quoteAssetPrecision}`)
     const buyQuantity = ((acbl.FIAT * fiat_pct) / buyPrice).toFixed(`${st.info.minQty}`)
@@ -218,10 +218,10 @@ export const placeInitialBuy = async function (acbl, RSI, bottomBorder, price, s
         placeOrder(buyOptions, st).then(order => {
             if (order.msg) {
                 logger.error(order)
-                sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${buyOptions.quantity}`)
+                sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${buyOptions.quantity}`, st)
                 return
             }
-            sendNotification(`New order placed for ${buyOptions.quantity}@${buyOptions.price} | ${buyOptions.side}`)
+            sendNotification(`New order placed for ${buyOptions.quantity}@${buyOptions.price} | ${buyOptions.side}`, st)
             return order
         }).catch((e) => {
             logger.error(e)
@@ -230,7 +230,7 @@ export const placeInitialBuy = async function (acbl, RSI, bottomBorder, price, s
 }
 
 export const placeInitialSell = async function (acbl, fullMultiplier, st) {
-    sendNotification(`There is ${acbl.MAIN_ASSET} ${st.info.baseAsset} in the account. => SELL order will be placed.`)
+    sendNotification(`There is ${acbl.MAIN_ASSET} ${st.info.baseAsset} in the account. => SELL order will be placed.`, st)
     const asset_pct = Number(st.ASSET_PERCENT) / 100
     const sellPrice = Number(price.price * fullMultiplier).toFixed(`${st.info.quoteAssetPrecision}`)
     const sellQuantity = (acbl.MAIN_ASSET * asset_pct).toFixed(`${st.info.minQty}`)
@@ -249,10 +249,10 @@ export const placeInitialSell = async function (acbl, fullMultiplier, st) {
         placeOrder(sellOptions, st).then(order => {
             if (order.msg) {
                 logger.error(order)
-                sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellOptions.quantity}`)
+                sendErrors(`Order could not be placed. Reason: \`\`\`${order.msg}\`\`\` when ordering for ${sellOptions.quantity}`, st)
                 return
             }
-            sendNotification(`New order placed for ${sellOptions.quantity}@${sellOptions.price} | ${sellOptions.side}`)
+            sendNotification(`New order placed for ${sellOptions.quantity}@${sellOptions.price} | ${sellOptions.side}`, st)
             return order
         }).catch((e) => {
             logger.error(e)

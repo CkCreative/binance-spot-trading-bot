@@ -143,7 +143,7 @@ export const trade = async (settings, socket) => {
             }
 
         } else {
-            sendNotification(`There is no open order currently. Deciding which side to start with...`)
+            sendNotification(`There is no open order currently. Deciding which side to start with...`, settings)
 
             if (acbl.FIAT > Number(settings.info.minOrder)) {
                 logger.info(`Placing initial BUY..`)
@@ -158,7 +158,7 @@ export const trade = async (settings, socket) => {
 
             } else {
                 logger.error(`Insufficient funds..`)
-                sendErrors(`Please add money to your account. You currently have only: $${acbl.FIAT} and ${acbl.MAIN_ASSET}${settings.MAIN_ASSET}, which is insufficient.`)
+                sendErrors(`Please add money to your account. You currently have only: $${acbl.FIAT} and ${acbl.MAIN_ASSET}${settings.MAIN_ASSET}, which is insufficient.`, settings)
             }
 
         }

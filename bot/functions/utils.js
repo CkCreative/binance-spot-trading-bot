@@ -4,7 +4,6 @@ const fs = require('fs');
 const cron = require('node-cron');
 
 import { avgPrice30, getAllOrders } from './info'
-import settings from '../settings.json'
 
 const logDir = 'logs';
 if (!fs.existsSync(logDir)) {
@@ -21,19 +20,19 @@ export const logger = winston.createLogger({
     ]
 });
 
-export const sendNotification = (message) => {
-    sendDiscord(`${message}`)
-    sendTelegram(`${message}`)
+export const sendNotification = (message, st) => {
+    sendDiscord(`${message}`, st)
+    sendTelegram(`${message}`, st)
 }
 // Send discord messages, no fancy formatting, just the content of the message.
-export const sendDiscord = (message) => {
-    fetch(`${settings.DISCORD}`, {
+export const sendDiscord = (message, st) => {
+    fetch(`${st.DISCORD}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            content: `${settings.INSTANCE_NAME}: ${message}`
+            content: `${st.INSTANCE_NAME}: ${message}`
         })
     }).then(data => {
         // console.log(data)
@@ -43,8 +42,8 @@ export const sendDiscord = (message) => {
     })
 }
 // Send telegram messages, no fancy formatting, just the content of the message.
-const sendTelegram = (message) => {
-    fetch(`https://api.telegram.org/bot${settings.TELEGRAM_TOKEN}/sendMessage?chat_id=${settings.TELEGRAM_CHATID}&text=${settings.INSTANCE_NAME}: ${message}`, {
+const sendTelegram = (message, st) => {
+    fetch(`https://api.telegram.org/bot${st.TELEGRAM_TOKEN}/sendMessage?chat_id=${st.TELEGRAM_CHATID}&text=${st.INSTANCE_NAME}: ${message}`, {
         method: 'POST',
 
     }).then(data => {
@@ -55,14 +54,14 @@ const sendTelegram = (message) => {
     })
 }
 
-export const sendErrors = (message) => {
-    fetch(`${settings.DISCORD_ERRORS}`, {
+export const sendErrors = (message, st) => {
+    fetch(`${st.DISCORD_ERRORS}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            content: `${settings.INSTANCE_NAME}: ${message}`
+            content: `${st.INSTANCE_NAME}: ${message}`
         })
     }).then(data => {
         // console.log(data)
