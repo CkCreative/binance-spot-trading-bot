@@ -4,7 +4,6 @@ import {
     checkPrice,
     accountBalances
 } from './functions/info'
-import settings from './settings.json'
 import { sendNotification, getRSI, sendErrors, logger } from './functions/utils'
 import {
     cancelStaleOrder,
@@ -14,14 +13,6 @@ import {
     placeLowSell,
     placeSell
 } from './functions/actions'
-
-// Calculate the highest and lowest percentage multipliers according to the set WIGGLE_ROOM
-const width = Number(settings.WIGGLE_ROOM / 100)
-const divider = Number(settings.BUYING_PRICE_DIVIDER)
-const fullMultiplier = settings.WIGGLE_ROOM / 100 + 1
-let bottomBorder = 1 - (width / divider)
-let cancelAfter = Number(settings.CANCEL_AFTER)
-const interval = Number(settings.INTERVAL)
 
 let openOrders = []
 let latestOrder = [{
@@ -33,61 +24,58 @@ let acbl = {
 }
 
 // The loop is set to poll the APIs in X milliseconds.
-setInterval(async () => {
+export const trade = async (settings, socket) => {
+    // Calculate the highest and lowest percentage multipliers according to the set WIGGLE_ROOM
+    const width = Number(settings.WIGGLE_ROOM / 100)
+    const divider = Number(settings.BUYING_PRICE_DIVIDER)
+    const fullMultiplier = (settings.WIGGLE_ROOM / 100) + 1
+    let bottomBorder = 1 - (width / divider)
+
+    let cancelAfter = Number(settings.CANCEL_AFTER)
+
     const openOptions = {
         symbol: `${settings.MAIN_MARKET}`,
         timestamp: Date.now()
     };
 
-    const RSI = await getRSI().catch((e) => {
-        logger.error(e)
-    });
+    const RSI = await getRSI(settings)
 
-    //Check and set account balances
-    ; (async () => {
-        const { balances } = await accountBalances()
-            .catch((e) => {
-                logger.error(e)
-            });
+        //Check and set account balances
+        ; (async () => {
+            const { balances } = await accountBalances(settings)
 
-        if (balances) {
-            for (let i in balances) {
-                if (balances[i].asset == `${settings.MAIN_ASSET}`) {
-                    acbl.MAIN_ASSET = balances[i].free
+            if (balances) {
+                for (let i in balances) {
+                    if (balances[i].asset == `${settings.info.baseAsset}`) {
+                        acbl.MAIN_ASSET = balances[i].free
+                    }
+                    if (balances[i].asset == `${settings.info.quoteAsset}`) {
+                        acbl.FIAT = balances[i].free
+                    }
                 }
-                if (balances[i].asset == `${settings.FIAT}`) {
-                    acbl.FIAT = balances[i].free
+            } else {
+                const { assets } = await accountBalances(settings)
+                for (let i in assets) {
+                    if (assets[i].asset == `${settings.info.baseAsset}`) {
+                        acbl.MAIN_ASSET = assets[i].availableBalance
+                    }
+                    if (assets[i].asset == `${settings.info.quoteAsset}`) {
+                        acbl.FIAT = assets[i].availableBalance
+                    }
                 }
             }
-        } else {
-            const { assets } = await accountBalances()
-            for (let i in assets) {
-                if (assets[i].asset == `${settings.MAIN_ASSET}`) {
-                    acbl.MAIN_ASSET = assets[i].availableBalance
-                }
-                if (assets[i].asset == `${settings.FIAT}`) {
-                    acbl.FIAT = assets[i].availableBalance
-                }
-            }
-        }
-    })();
-    // logger.info(acbl)
+        })();
 
     // Get the current price and also the latest two candle sticks
-    const price = await checkPrice(`${settings.MAIN_MARKET}`)
-        .catch((e) => {
-            logger.error(e)
-        });
+    const price = await checkPrice(`${settings.MAIN_MARKET}`, settings)
     const current_price = price.price
 
     logger.info(`Ticker: ${price.price}`)
-    price.price = Number(price.price).toFixed(`${settings.PRECISION}`)
+    price.price = Number(price.price).toFixed(`${settings.info.quoteAssetPrecision}`)
 
     // Check for open orders and if it is a BUY order and has not been filled within X minutes, cancel it
     // so that you can place another BUY order
-    openOrders = await openOrder(openOptions).catch((e) => {
-        logger.error(e)
-    });
+    openOrders = await openOrder(openOptions, settings)
 
     // Guard against errors
     if (openOrders.msg) {
@@ -96,18 +84,14 @@ setInterval(async () => {
             symbol: `${settings.MAIN_MARKET}`,
             timestamp: Date.now()
         };
-        openOrders = await openOrder(openOptions).catch((e) => {
-            logger.error(e)
-        });
+        openOrders = await openOrder(openOptions, settings)
 
     }
     try {
         if (openOrders.length > 0
             && ((Date.now() - Number(openOrders[0].clientOrderId)) / 1000) > cancelAfter
             && openOrders[0].side == 'BUY') {
-            await cancelStaleOrder(openOrders, current_price, fullMultiplier).catch((e) => {
-                logger.error(e)
-            });
+            await cancelStaleOrder(openOrders, current_price, fullMultiplier, settings)
         }
 
     } catch (error) {
@@ -119,9 +103,7 @@ setInterval(async () => {
     if (openOrders.length < 1) {
 
         // Check if there are existing orders, if any, then pick the top as the current order.
-        let topOrder = await allOrder(openOptions).catch((e) => {
-            logger.error(e)
-        });
+        let topOrder = await allOrder(openOptions, settings)
 
         // Guard against errors
         if (topOrder.msg) {
@@ -131,9 +113,7 @@ setInterval(async () => {
                 symbol: `${settings.MAIN_MARKET}`,
                 timestamp: Date.now()
             };
-            topOrder = await allOrder(openOptions).catch((e) => {
-                logger.error(e)
-            });
+            topOrder = await allOrder(openOptions, settings)
         }
         if (topOrder.length > 0) {
             latestOrder = topOrder
@@ -141,9 +121,7 @@ setInterval(async () => {
             if ((latestOrder[0].side == 'SELL' && latestOrder[0].status == 'FILLED')
                 || (latestOrder[0].status == 'CANCELED' && latestOrder[0].side == 'BUY')) {
                 logger.info(`Placing normal BUY..`)
-                latestOrder[0] = await placeBuy(acbl, latestOrder, bottomBorder, price, RSI).catch((e) => {
-                    logger.error(e)
-                });
+                latestOrder[0] = await placeBuy(acbl, latestOrder, bottomBorder, price, RSI, settings)
                 return
             }
 
@@ -152,9 +130,7 @@ setInterval(async () => {
             if (latestOrder[0].status == 'CANCELED'
                 && latestOrder[0].side == 'SELL') {
                 logger.info(`Placing LOW SELL..`)
-                latestOrder[0] = await placeLowSell(acbl, latestOrder, fullMultiplier, current_price).catch((e) => {
-                    logger.error(e)
-                });
+                latestOrder[0] = await placeLowSell(acbl, latestOrder, fullMultiplier, current_price, settings)
                 return
             }
 
@@ -162,33 +138,27 @@ setInterval(async () => {
             if ((latestOrder[0].status == 'FILLED' && latestOrder[0].side == 'BUY')
                 || (latestOrder[0].status == 'CANCELED' && latestOrder[0].side == 'SELL')) {
                 logger.info(`Placing normal SELL..`)
-                latestOrder[0] = await placeSell(acbl, latestOrder, fullMultiplier, current_price).catch((e) => {
-                    logger.error(e)
-                });
+                latestOrder[0] = await placeSell(acbl, latestOrder, fullMultiplier, current_price, settings)
                 return
             }
 
         } else {
-            sendNotification(`There is no open order currently. Deciding which side to start with...`)
+            sendNotification(`There is no open order currently. Deciding which side to start with...`, settings)
 
-            if (acbl.FIAT > 11) {
+            if (acbl.FIAT > Number(settings.info.minOrder)) {
                 logger.info(`Placing initial BUY..`)
-                latestOrder[0] = await placeInitialBuy(acbl, RSI, bottomBorder, price).catch((e) => {
-                    logger.error(e)
-                });
+                latestOrder[0] = await placeInitialBuy(acbl, RSI, bottomBorder, price, settings)
                 return
 
-            } else if (acbl.MAIN_ASSET * price.price > 11) {
+            } else if (acbl.MAIN_ASSET * price.price > Number(settings.info.minOrder)) {
                 // Initialize order options
                 logger.info(`Placing initial SELL..`)
-                latestOrder[0] = await placeInitialSell(acbl, fullMultiplier).catch((e) => {
-                    logger.error(e)
-                });
+                latestOrder[0] = await placeInitialSell(acbl, fullMultiplier, settings)
                 return
 
             } else {
                 logger.error(`Insufficient funds..`)
-                sendErrors(`Please add money to your account. You currently have only: $${acbl.FIAT} and ${acbl.MAIN_ASSET}${settings.MAIN_ASSET}, which is insufficient.`)
+                sendErrors(`Please add money to your account. You currently have only: $${acbl.FIAT} and ${acbl.MAIN_ASSET}${settings.MAIN_ASSET}, which is insufficient.`, settings)
             }
 
         }
@@ -202,10 +172,12 @@ setInterval(async () => {
     // Log information in the console about the pending order
     try {
         if (latestOrder.length > 0) {
+            socket.emit('pending', latestOrder[0]);
+            socket.emit('ticker', current_price);
             logger.info(`Latest Order: | ${latestOrder[0].origQty}@${latestOrder[0].price} | ${latestOrder[0].side} | ${latestOrder[0].status}`)
         }
     } catch (error) {
         logger.error("There was an error..", error)
     }
 
-}, interval);
+};

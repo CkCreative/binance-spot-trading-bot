@@ -1,9 +1,9 @@
 const fetch = require('node-fetch');
 const winston = require('winston');
 const fs = require('fs');
+const cron = require('node-cron');
 
-import { avgPrice30 } from './info'
-import settings from '../settings.json'
+import { avgPrice30, getAllOrders } from './info'
 
 const logDir = 'logs';
 if (!fs.existsSync(logDir)) {
@@ -20,19 +20,19 @@ export const logger = winston.createLogger({
     ]
 });
 
-export const sendNotification = (message) => {
-    sendDiscord(`${message}`)
-    sendTelegram(`${message}`)
+export const sendNotification = (message, st) => {
+    sendDiscord(`${message}`, st)
+    sendTelegram(`${message}`, st)
 }
 // Send discord messages, no fancy formatting, just the content of the message.
-export const sendDiscord = (message) => {
-    fetch(`${settings.DISCORD}`, {
+export const sendDiscord = (message, st) => {
+    fetch(`${st.DISCORD}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            content: `${settings.INSTANCE_NAME}: ${message}`
+            content: `${st.INSTANCE_NAME}: ${message}`
         })
     }).then(data => {
         // console.log(data)
@@ -42,8 +42,8 @@ export const sendDiscord = (message) => {
     })
 }
 // Send telegram messages, no fancy formatting, just the content of the message.
-const sendTelegram = (message) => {
-    fetch(`https://api.telegram.org/bot${settings.TELEGRAM_TOKEN}/sendMessage?chat_id=${settings.TELEGRAM_CHATID}&text=${settings.INSTANCE_NAME}: ${message}`, {
+const sendTelegram = (message, st) => {
+    fetch(`https://api.telegram.org/bot${st.TELEGRAM_TOKEN}/sendMessage?chat_id=${st.TELEGRAM_CHATID}&text=${st.INSTANCE_NAME}: ${message}`, {
         method: 'POST',
 
     }).then(data => {
@@ -54,14 +54,14 @@ const sendTelegram = (message) => {
     })
 }
 
-export const sendErrors = (message) => {
-    fetch(`${settings.DISCORD_ERRORS}`, {
+export const sendErrors = (message, st) => {
+    fetch(`${st.DISCORD_ERRORS}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            content: `${settings.INSTANCE_NAME}: ${message}`
+            content: `${st.INSTANCE_NAME}: ${message}`
         })
     }).then(data => {
         // console.log(data)
@@ -71,10 +71,10 @@ export const sendErrors = (message) => {
     })
 }
 
-export const getRSI = async function () {
+export const getRSI = async function (st) {
     let upMoves = 0
     let downMoves = 0
-    const averagePrice = await avgPrice30(`${settings.MAIN_MARKET}`)
+    const averagePrice = await avgPrice30(`${st.MAIN_MARKET}`, st)
     averagePrice.forEach((element, index) => {
         if (element[1] < element[4]) {
             upMoves += 1
@@ -89,3 +89,43 @@ export const getRSI = async function () {
     const RSI = 100 - (100 / (1 + RS))
     return RSI
 }
+
+// profit checking function
+const check = async function (io, obj) {
+    try {
+        const orders = await getAllOrders({
+            symbol: `${obj.MAIN_MARKET}`,
+            timestamp: Date.now(),
+            startTime: Date.now() - (3600 * 1000 * 24)
+        }, obj)
+
+        let quantities = []
+        orders.forEach(element => {
+            if (element.status == 'FILLED' && element.side == 'SELL') {
+                quantities.push({
+                    y: Number(element.origQty),
+                    x: element.time
+                })
+            }
+        });
+
+        io.emit('quantities', quantities);
+    } catch (error) {
+        logger.error(error)
+    }
+
+}
+
+// check profit utility, check initially, and then schedule a check every one minute
+export const profitTracker = async (io, obj) => {
+
+    // initial check
+    await check(io, obj)
+
+    cron.schedule('* * * * *', async () => {
+
+        // subsequent checks by the minute
+        await check(io, obj)
+    });
+}
+

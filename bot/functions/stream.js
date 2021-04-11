@@ -1,14 +1,13 @@
 const WebSocket = require('ws');
-import settings from '../settings.json'
 import { logger } from './utils'
 
 
 // Stream the price of the symbol
-export const coinPrice = function (symbol) {
+export const coinPrice = function (symbol, st) {
     let highest_price = 0
     let lowest_price = 0
     let percentage = 0
-    const ws = new WebSocket(`${settings.STREAM_URL}/${symbol}@ticker`);
+    const ws = new WebSocket(`${st.STREAM_URL}/${symbol}@ticker`);
     ws.on('message', function incoming(data) {
         const price = JSON.parse(data).c
 

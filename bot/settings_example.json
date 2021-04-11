@@ -1,0 +1,21 @@
+{
+  "URL": "https://testnet.binancefuture.com/fapi/v1",
+  "API_SECRET": "",
+  "API_KEY": "",
+  "STREAM_URL": "wss://testnet.binancefuture.com/ws",
+  "WIGGLE_ROOM": "0.5",
+  "MAIN_MARKET": "BTCBUSD",
+  "CANCEL_AFTER": "21600",
+  "INTERVAL": "2000",
+  "INSTANCE_NAME": "BTC",
+  "ACCEPTABLE_LOSS": 2,
+  "PIN": 123456,
+  "HIGHEST_RSI": 80,
+  "ASSET_PERCENT": 99,
+  "FIAT_OR_QUOTE_PERCENT": 99,
+  "DISCORD": "",
+  "DISCORD_ERRORS": "",
+  "TELEGRAM_TOKEN": "",
+  "TELEGRAM_CHATID": "",
+  "BUYING_PRICE_DIVIDER": "1"
+}

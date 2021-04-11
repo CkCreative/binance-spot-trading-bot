@@ -1,0 +1,11 @@
+@media only screen and (max-width: 600px) {
+    .mg_bottom {
+        margin-bottom: 200px;
+        margin-top: 120px;
+    }
+}
+
+.mg_bottom {
+    margin-bottom: 150px;
+    margin-top: 60px;
+}
