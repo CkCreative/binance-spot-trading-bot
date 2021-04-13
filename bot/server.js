@@ -35,7 +35,11 @@ let draft
         info = { ...await exchangeInfo(obj) }
         obj.info = info
         draft = setInterval(() => {
-            trade(obj, io)
+            if (obj.STATE == 'ON') {
+                trade(obj, io)
+            } else {
+                return
+            }
         }, obj.INTERVAL);
     })();
 
@@ -52,9 +56,15 @@ app.post('/start', (req, res) => {
     let { pin, action } = req.body
     logger.info(action)
     if (pin == obj.PIN && action == 'START') {
+        obj.STATE = 'ON'
+        fs.writeFileSync('settings.json', JSON.stringify(obj, null, 2));
         clearInterval(draft)
         draft = setInterval(() => {
-            trade(obj, io)
+            if (obj.STATE == 'ON') {
+                trade(obj, io)
+            } else {
+                return
+            }
         }, obj.INTERVAL);
         res.redirect('/');
     } else {
@@ -64,7 +74,10 @@ app.post('/start', (req, res) => {
 
 app.post('/stop', (req, res) => {
     let { pin, action } = req.body
+
     if (pin == obj.PIN && action == 'STOP') {
+        obj.STATE = 'OFF'
+        fs.writeFileSync('settings.json', JSON.stringify(obj, null, 2));
         logger.info(action)
         clearInterval(draft)
         res.redirect('/');
@@ -85,16 +98,17 @@ app.post('/', (req, res) => {
         divider
     } = req.body
 
-    obj.INTERVAL = interval_value
-    obj.MAIN_MARKET = market
-    obj.CANCEL_AFTER = after
-    obj.WIGGLE_ROOM = room
-    obj.ASSET_PERCENT = asset_pct
-    obj.FIAT_OR_QUOTE_PERCENT = fiat_or_quote_pct
-    obj.INSTANCE_NAME = instance
-    obj.BUYING_PRICE_DIVIDER = divider
-
     if (pin == obj.PIN) {
+
+        obj.INTERVAL = interval_value
+        obj.MAIN_MARKET = market
+        obj.CANCEL_AFTER = after
+        obj.WIGGLE_ROOM = room
+        obj.ASSET_PERCENT = asset_pct
+        obj.FIAT_OR_QUOTE_PERCENT = fiat_or_quote_pct
+        obj.INSTANCE_NAME = instance
+        obj.BUYING_PRICE_DIVIDER = divider
+
         fs.writeFileSync('settings.json', JSON.stringify(obj, null, 2));
 
         obj = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
@@ -104,7 +118,11 @@ app.post('/', (req, res) => {
 
             clearInterval(draft)
             draft = setInterval(() => {
-                trade(obj, io)
+                if (obj.STATE == 'ON') {
+                    trade(obj, io)
+                } else {
+                    return
+                }
             }, obj.INTERVAL);
         })();
 
