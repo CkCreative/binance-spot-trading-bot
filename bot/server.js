@@ -11,8 +11,6 @@ import { clearInterval } from 'timers'
 import { logger, profitTracker } from './functions/utils'
 import { exchangeInfo } from './functions/info'
 
-const port = 3000
-
 io.on('connection', (socket) => {
     logger.info('a user connected');
 });
@@ -29,6 +27,8 @@ let info = {
     quoteAsset: '',
     quoteAssetPrecision: 0
 }
+
+const port = obj.PORT
 
 let draft
     ; (async () => {
