@@ -1,11 +1,32 @@
 version: "3"
 
 services:
-  bot:
-    image: node:14
+  one:
+    build: ./bot
     restart: always
+    hostname: one
     ports:
       - "3000:3000"
     volumes:
-      - ./bot:/usr/app
-    command: bash -c "cd /usr/app && npm install && npm run dev"
+      - ./one/settings.json:/usr/src/app/settings.json
+    command: bash -c "npm run dev"
+
+  two:
+    build: ./bot
+    restart: always
+    hostname: two
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./two/settings.json:/usr/src/app/settings.json
+    command: bash -c "npm run dev"
+
+  three:
+    build: ./bot
+    restart: always
+    hostname: three
+    ports:
+      - "3002:3000"
+    volumes:
+      - ./three/settings.json:/usr/src/app/settings.json
+    command: bash -c "npm run dev"

@@ -109,7 +109,7 @@ You can run this bot anywhere. This includes on PC, Mac or Linux provided you ha
 
 - **Step 3**: Go to binance and obtain your settings i.e. The `API KEY` and the `API SECRET`. Remember that if you are going to be using Binance testnet, you need to use the testnet `API_KEY` and `SECRET` associated with your testing account at [https://testnet.binancefuture.com](https://testnet.binancefuture.com). If you use the main Binance site, use the `API_KEY` and `SECRET` associated with your trading account.
 
-- **Step 4**: Decide whether to use Binance backtesting API (`https://testnet.binancefuture.com/fapi/v1`, recommended) or the main site to use real money (`https://api.binance.com/api/v3`, only when sure should you do this). If you are going to use testnet, the URL value of the `settings.json` file should be: `"https://testnet.binancefuture.com/fapi/v1"`. Else use `"https://api.binance.com/api/v3"` for main account. NB: rename the `settings_example.json` file to `settings.json`.
+- **Step 4**: Decide whether to use Binance backtesting API (`https://testnet.binancefuture.com/fapi/v1`, recommended) or the main site to use real money (`https://api.binance.com/api/v3`, only when sure should you do this). If you are going to use testnet, the URL value of the `settings.json` file should be: `"https://testnet.binancefuture.com/fapi/v1"`. Else use `"https://api.binance.com/api/v3"` for main account. NB: create a `settings.json` file with options such as those in `settings_example.json`.
 
 - **Step 5**: Edit other settings accordingly.
 
