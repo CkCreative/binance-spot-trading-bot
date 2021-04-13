@@ -91,7 +91,8 @@ Add your suitable settings:
     "TELEGRAM_TOKEN": "", // TELEGRAM TOKEN
     "TELEGRAM_CHATID": "", // TELEGRAM CHATID
     "BUYING_PRICE_DIVIDER": 1, // This default value means the buying price is the current price minus the wiggle room. If you want to buy a little closer to the current price, increase this value. 
-    "PIN": 12345 // This is used in the UI. When you change this, you need to restart the bot.
+    "PIN": 12345, // This is used in the UI. When you change this, you need to restart the bot.
+    "PORT": "3000" // This is the default port of the frontend server.
 }
 ```
 
