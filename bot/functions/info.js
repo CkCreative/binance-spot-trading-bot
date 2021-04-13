@@ -176,7 +176,7 @@ export const exchangeInfo = async (st) => {
                 }
 
                 if (filter.filterType == 'MIN_NOTIONAL') {
-                    info.minOrder = filter.minNotional
+                    info.minOrder = filter.minNotional ? filter.minNotional : filter.notional
                 }
             });
         }
