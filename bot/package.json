@@ -14,6 +14,7 @@
     "express": "^4.17.1",
     "node-cron": "^3.0.0",
     "node-fetch": "^2.6.1",
+    "node-telegram-bot-api": "^0.52.0",
     "pug": "^3.0.2",
     "socket.io": "^4.0.1",
     "sqlite3": "^5.0.2",
