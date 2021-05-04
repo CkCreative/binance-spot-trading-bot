@@ -34,6 +34,11 @@ let draft
     ; (async () => {
         info = { ...await exchangeInfo(obj) }
         obj.info = info
+           if (obj.info.baseAsset == "") {
+              logger.error(`No information retreived. Probably the trading pair does not exist`)
+              process.exit()
+           }
+
         draft = setInterval(() => {
             if (obj.STATE == 'ON') {
                 trade(obj, io)
@@ -115,7 +120,10 @@ app.post('/', (req, res) => {
         ; (async () => {
             info = { ...await exchangeInfo(obj) }
             obj.info = info
-
+               if (obj.info.baseAsset == "") {
+                  logger.error(`No information retreived. Probably the trading pair does not exist`)
+                  process.exit()
+               }
             clearInterval(draft)
             draft = setInterval(() => {
                 if (obj.STATE == 'ON') {
