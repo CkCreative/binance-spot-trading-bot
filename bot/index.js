@@ -14,6 +14,8 @@ import {
     placeSell
 } from './functions/actions'
 
+import { telegramresponder }  from './functions/telegram_responder'
+
 let openOrders = []
 let latestOrder = [{
     side: 'BUY'
@@ -22,6 +24,8 @@ let acbl = {
     FIAT: 0,
     MAIN_ASSET: 0
 }
+
+telegramresponder()
 
 // The loop is set to poll the APIs in X milliseconds.
 export const trade = async (settings, socket) => {
