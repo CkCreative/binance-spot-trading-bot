@@ -30,6 +30,8 @@ let info = {
 
 const port = obj.PORT
 
+obj.UPDATE == `FALSE`
+
 let draft
     ; (async () => {
         info = { ...await exchangeInfo(obj) }
@@ -59,18 +61,9 @@ app.get('/', (req, res) => {
 
 app.post('/start', (req, res) => {
     let { pin, action } = req.body
-    logger.info(action)
     if (pin == obj.PIN && action == 'START') {
         obj.STATE = 'ON'
-        fs.writeFileSync('settings.json', JSON.stringify(obj, null, 2));
-        clearInterval(draft)
-        draft = setInterval(() => {
-            if (obj.STATE == 'ON') {
-                trade(obj, io)
-            } else {
-                return
-            }
-        }, obj.INTERVAL);
+        ControlBot(obj, action)
         res.redirect('/');
     } else {
         res.send("gHOST!");
@@ -82,9 +75,7 @@ app.post('/stop', (req, res) => {
 
     if (pin == obj.PIN && action == 'STOP') {
         obj.STATE = 'OFF'
-        fs.writeFileSync('settings.json', JSON.stringify(obj, null, 2));
-        logger.info(action)
-        clearInterval(draft)
+        ControlBot(obj, action)
         res.redirect('/');
     } else {
         res.send("gHOST!");
@@ -105,6 +96,7 @@ app.post('/', (req, res) => {
 
     if (pin == obj.PIN) {
 
+        obj.UPDATE = `TRUE`
         obj.INTERVAL = interval_value
         obj.MAIN_MARKET = market
         obj.CANCEL_AFTER = after
@@ -113,33 +105,57 @@ app.post('/', (req, res) => {
         obj.FIAT_OR_QUOTE_PERCENT = fiat_or_quote_pct
         obj.INSTANCE_NAME = instance
         obj.BUYING_PRICE_DIVIDER = divider
-
-        fs.writeFileSync('settings.json', JSON.stringify(obj, null, 2));
-
-        obj = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
-        ; (async () => {
-            info = { ...await exchangeInfo(obj) }
-            obj.info = info
-               if (obj.info.baseAsset == "") {
-                  logger.error(`No information retreived. Probably the trading pair does not exist`)
-                  process.exit()
-               }
-            clearInterval(draft)
-            draft = setInterval(() => {
-                if (obj.STATE == 'ON') {
-                    trade(obj, io)
-                } else {
-                    return
-                }
-            }, obj.INTERVAL);
-        })();
-
+        const action = `update`
+        ControlBot(obj,action)
         res.redirect('/');
     } else {
         res.send("gHOST!");
     }
 
 });
+
+export const ControlBot =(obj,action) => {
+     if (obj.STATE == `OFF`) {
+         fs.writeFileSync('settings.json', JSON.stringify(obj, null, 2));
+         logger.info(action)
+         clearInterval(draft)
+     } else if (obj.STATE == `ON` && obj.UPDATE == `FALSE`) {
+         fs.writeFileSync('settings.json', JSON.stringify(obj, null, 2));
+         logger.info(action)
+         clearInterval(draft)
+         draft = setInterval(() => {
+              if (obj.STATE == 'ON') {
+                 trade(obj, io)
+              } else {
+                 return
+              }
+         }, obj.INTERVAL);
+     } else if (obj.UPDATE = `TRUE`) {
+         fs.writeFileSync('settings.json', JSON.stringify(obj, null, 2));
+
+         obj.UPDATE = `FALSE`
+         obj = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
+         ; (async () => {
+             debugger;
+             info = { ...await exchangeInfo(obj) }
+             if (obj.info.baseAsset == "" ) {
+                logger.error(`No information retreived. Probably the trading pair does not exist`)
+                process.exit()
+             }
+             obj.info = info
+
+             clearInterval(draft)
+             draft = setInterval(() => {
+                 if (obj.STATE == 'ON') {
+                     trade(obj, io)
+                 } else {
+                     return
+                 }
+             }, obj.INTERVAL);
+         })();
+     }
+}
+
 
 server.listen(port, '0.0.0.0', () => {
     logger.info(`Binance bot listening at http://localhost:${port}`)
