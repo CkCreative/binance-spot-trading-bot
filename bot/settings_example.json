@@ -5,6 +5,7 @@
   "STREAM_URL": "wss://testnet.binancefuture.com/ws",
   "WIGGLE_ROOM": "0.5",
   "MAIN_MARKET": "BTCBUSD",
+   "MONITOR_MARKETS": ["BTCBUSD", "ETHBUSD","DOGEBUSD",  ],
   "CANCEL_AFTER": "21600",
   "INTERVAL": "2000",
   "INSTANCE_NAME": "BTC",
