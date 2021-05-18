@@ -1,11 +1,47 @@
+body {
+  font-size: 0.875rem;
+}
+
 @media only screen and (max-width: 600px) {
-    .mg_bottom {
-        margin-bottom: 200px;
-        margin-top: 120px;
-    }
+  .mg_bottom {
+    margin-bottom: 200px;
+    margin-top: 120px;
+  }
 }
 
 .mg_bottom {
-    margin-bottom: 150px;
-    margin-top: 60px;
+  margin-bottom: 150px;
+  margin-top: 60px;
+}
+
+#balances {
+  font-size: 13px;
+}
+
+.chart-container {
+  height: 70%;
+}
+
+#settings {
+  overflow-y: auto;
+  height: 70%;
+}
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100; /* Behind the navbar */
+  padding: 0;
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-portfolio {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 100; /* Behind the navbar */
+  padding: 0;
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
 }
