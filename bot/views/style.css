@@ -45,3 +45,8 @@ body {
   padding: 0;
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
 }
+
+#ticker marquee span {
+  margin-right: 41px;
+  display: inline;
+}

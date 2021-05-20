@@ -6,7 +6,7 @@ const app = express();
 const server = http.createServer(app);
 const io = require("socket.io")(server);
 
-import { trade } from "./index";
+import { pretrade } from "./index";
 import { clearInterval } from "timers";
 import { logger, profitTracker, check } from "./functions/utils";
 import { exchangeInfo, accountBalances } from "./functions/info";
@@ -24,7 +24,7 @@ app.use(
   })
 );
 
-let obj = JSON.parse(fs.readFileSync("settings.json", "utf8"));
+let obj = require("./settings.json");
 let info = {
   minOrder: 0,
   minQty: 0,
@@ -39,9 +39,16 @@ let portfolio = {
 };
 
 obj.MONITOR_MARKETS.forEach((element) => {
+  let tradeEnabled = false;
+  if (obj.ENABLED_MARKETS.indexOf(element) != -1) {
+    logger.warn(`Trading enabled for ${element}`);
+    tradeEnabled = true;
+  }
   portfolio.pairs[element] = {
     pairName: element,
-    tradeEnabled: false,
+    tradeEnabled: tradeEnabled,
+    monitorEnabled: true,
+    settings: {},
   };
 });
 const port = obj.PORT;
@@ -52,7 +59,7 @@ let mainLoop;
     ...(await exchangeInfo(obj)),
   };
   obj.info = info;
-  if (obj.info.baseAsset == "") {
+  if (Object.keys(info) == 0) {
     logger.error(
       `No information retreived. Probably the trading pair does not exist`
     );
@@ -60,10 +67,6 @@ let mainLoop;
   }
 
   mainLoop = setInterval(async () => {
-    info = {
-      ...(await exchangeInfo(obj)),
-    };
-    console.log("inf", info);
     const { balances } = await accountBalances(obj);
     balances.forEach((element) => {
       if (element.free != 0 || element.locked != 0) {
@@ -72,8 +75,19 @@ let mainLoop;
     });
     io.emit("portfolio", portfolio);
     for (let p in portfolio.pairs) {
-      if (true || p.tradeEnabled) {
-        trade(obj, io, p);
+      portfolio.pairs[p].settings = {
+        ...portfolio.pairs[p].settings,
+        ...obj.defaults,
+      };
+      logger.info(`Processing ${p}`);
+      if (
+        portfolio.pairs[p].monitorEnabled ||
+        portfolio.pairs[p].tradeEnabled
+      ) {
+        pretrade(obj, portfolio.pairs[p], io, p, portfolio);
+      }
+      if (portfolio.pairs[p].tradeEnabled) {
+        //   pretrade(obj, io, p, portfolio);
       }
     }
   }, obj.INTERVAL);
@@ -94,7 +108,7 @@ let draft;
 
   draft = setInterval(() => {
     if (obj.STATE == "ON") {
-      trade(obj, io);
+      //   trade(obj, io);
     } else {
       return;
     }
@@ -103,11 +117,9 @@ let draft;
 
 // initialize profit tracker
 // initial check
-console.log(portfolio);
 check(io, obj, portfolio.pairs);
 
 cron.schedule("* * * * *", async () => {
-  console.log("profit check");
   // subsequent checks by the minute
   check(io, obj, portfolio.pairs);
 });
@@ -127,7 +139,7 @@ app.post("/start", (req, res) => {
     clearInterval(draft);
     draft = setInterval(() => {
       if (obj.STATE == "ON") {
-        trade(obj, io);
+        //    trade(obj, io);
       } else {
         return;
       }
@@ -192,7 +204,7 @@ app.post("/", (req, res) => {
       clearInterval(draft);
       draft = setInterval(async () => {
         if (obj.STATE == "ON") {
-          trade(obj, io);
+          //  trade(obj, io);
         } else {
           return;
         }

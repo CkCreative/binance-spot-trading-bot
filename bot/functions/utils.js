@@ -79,10 +79,10 @@ export const sendErrors = (message, st) => {
     });
 };
 
-export const getRSI = async function (st) {
+export const getRSI = async function (tradingPair, st) {
   let upMoves = 0;
   let downMoves = 0;
-  const averagePrice = await avgPrice30(`${st.MAIN_MARKET}`, st);
+  const averagePrice = await avgPrice30(tradingPair, st);
   averagePrice.forEach((element, index) => {
     if (element[1] < element[4]) {
       upMoves += 1;
@@ -128,8 +128,6 @@ export const check = async function (io, obj, pairs) {
       logger.error(error);
     }
   }
-  console.log("q", quantities);
-
   io.emit("quantities", quantities);
 };
 

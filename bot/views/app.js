@@ -15,6 +15,7 @@ var app = new Vue({
     quantities: {},
     prices: {},
     ticker: 0,
+    latestOrders: {},
     latestOrder: {
       origQty: 0,
       price: 0,
@@ -70,13 +71,19 @@ var app = new Vue({
     },
   },
 });
-socket.on("pending", function (msg) {
+socket.on("pending", function (tradingPair, msg) {
   app.latestOrder = msg;
+  app.latestOrders[tradingPair] = msg;
+  console.log(tradingPair, msg);
 });
-socket.on("ticker", function (msg) {
+socket.on("ticker", function (tradingPair, msg) {
   app.ticker = msg;
 });
 socket.on("portfolio", function (portfolio) {
+  app.balances = portfolio.balances;
+  app.markets = portfolio.pairs;
+});
+socket.on("wouldTrade", function (tradingPair, tradeDetails) {
   app.balances = portfolio.balances;
   app.markets = portfolio.pairs;
 });
@@ -89,7 +96,6 @@ socket.on("priceUpdate", function (tradingPair, current_price) {
   }
   app.prices[tradingPair].lastPrice = app.prices[tradingPair].price;
   app.prices[tradingPair].price = current_price;
-  console.log(tradingPair, current_price);
 });
 let ctx = document.getElementById("chart").getContext("2d");
 const defaultDataset = {
