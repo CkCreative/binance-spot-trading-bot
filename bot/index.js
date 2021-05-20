@@ -14,7 +14,7 @@ import {
     placeSell
 } from './functions/actions'
 
-import { telegramresponder }  from './functions/telegram_responder'
+import { telegramresponder, telegraminfo }  from './functions/telegram_responder'
 
 let openOrders = []
 let latestOrder = [{
@@ -179,6 +179,7 @@ export const trade = async (settings, socket) => {
             socket.emit('pending', latestOrder[0]);
             socket.emit('ticker', current_price);
             logger.info(`Latest Order: | ${latestOrder[0].origQty}@${latestOrder[0].price} | ${latestOrder[0].side} | ${latestOrder[0].status}`)
+            telegraminfo(latestOrder[0])
         }
     } catch (error) {
         logger.error("There was an error..", error)
