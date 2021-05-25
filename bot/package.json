@@ -10,6 +10,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@tsconfig/node14": "^1.0.0",
+    "chartjs": "^0.3.24",
+    "chartjs-plugin-zoom": "^1.0.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
     "node-cron": "^3.0.0",
@@ -17,7 +20,10 @@
     "pug": "^3.0.2",
     "socket.io": "^4.0.1",
     "sqlite3": "^5.0.2",
+    "ta-lib": "^0.11.0",
+    "typescript": "^4.2.4",
     "winston": "^3.3.3",
+    "winston-timer": "^0.1.0",
     "ws": "^7.4.4"
   },
   "devDependencies": {

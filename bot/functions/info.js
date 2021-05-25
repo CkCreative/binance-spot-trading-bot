@@ -154,10 +154,16 @@ export const exchangeInfo = async (st) => {
     },
   });
   const json = await res.json();
+  let info = parseExchangeInfo(json,st.MONITOR_MARKETS);
+  return info;
+};
+
+// Get the account balances of all the tokens
+export const parseExchangeInfo = async (json,wantedMarkets) => {
   let info = {};
   json.symbols.forEach((market) => {
     // get the exchange info for the current market
-    if (st.MONITOR_MARKETS.indexOf(market.symbol) != -1) {
+    if (wantedMarkets.indexOf(market.symbol) != -1) {
       info[market.symbol] = {
         minOrder: 0,
         minQty: 0,

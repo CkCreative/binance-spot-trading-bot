@@ -6,12 +6,30 @@ const app = express();
 const server = http.createServer(app);
 const io = require("socket.io")(server);
 
-import { pretrade } from "./index";
+const Binance = require("node-binance-api");
+
+import { pretrade, updateAnalytics } from "./index";
 import { clearInterval } from "timers";
-import { logger, profitTracker, check } from "./functions/utils";
-import { exchangeInfo, accountBalances } from "./functions/info";
+import {
+  logger,
+  profitTracker,
+  check,
+  sendNotification,
+} from "./functions/utils";
+import {
+  exchangeInfo,
+  accountBalances,
+  parseExchangeInfo,
+} from "./functions/info";
+import { Console } from "console";
 const cron = require("node-cron");
 
+function startTime() {
+  return new Date();
+}
+function stopTime(time) {
+  return startTime() - time;
+}
 io.on("connection", (socket) => {
   logger.info("a user connected");
 });
@@ -25,6 +43,12 @@ app.use(
 );
 
 let obj = require("./settings.json");
+
+const binance = new Binance().options({
+  APIKEY: obj.API_KEY,
+  APISECRET: obj.API_SECRET,
+});
+
 let info = {
   minOrder: 0,
   minQty: 0,
@@ -36,61 +60,222 @@ let info = {
 let portfolio = {
   balances: {},
   pairs: {},
+  info: {},
+  orders: {
+    all: {},
+  },
 };
 
-obj.MONITOR_MARKETS.forEach((element) => {
+let exchange = {
+  timeOffset: 0,
+  info: {},
+};
+let canMonitor = {};
+
+obj.MONITOR_MARKETS.forEach((tradePair) => {
   let tradeEnabled = false;
-  if (obj.ENABLED_MARKETS.indexOf(element) != -1) {
-    logger.warn(`Trading enabled for ${element}`);
+  if (obj.ENABLED_MARKETS.indexOf(tradePair) != -1) {
+    logger.warn(`Trading enabled for ${tradePair}`);
     tradeEnabled = true;
   }
-  portfolio.pairs[element] = {
-    pairName: element,
+  portfolio.pairs[tradePair] = {
+    pairName: tradePair,
     tradeEnabled: tradeEnabled,
     monitorEnabled: true,
     settings: {},
+    tradeHistory: {},
+    candlesticks: {},
   };
+  binance.trades(tradePair, (error, trades, symbol) => {
+    // binance don't guarantee the order. 
+    if(error) return console.error(error);
+    console.log(trades);
+    
+    trades.sort((a, b) => {
+      // or is it updateTime??
+      return a.time - b.time;
+    });
+    portfolio.pairs[symbol].tradeHistory = trades;
+    //console.info(symbol + " trade history", trades);
+    io.emit("portfolio", portfolio);
+  });
 });
-const port = obj.PORT;
+binance.websockets.chart(
+  obj.MONITOR_MARKETS,
+  "1m",
+  (symbol, interval, chart) => {
+    let tick = binance.last(chart);
+    if (!tick) return console.error(chart);
+    const last = chart[tick].close;
+    // Optionally convert 'chart' object to array:
+    // let ohlc = binance.ohlc(chart);
+    //console.info(symbol, ohlc);
+    io.emit("chartUpdate", symbol, chart);
+    io.emit("priceUpdate", symbol, last);
+    if (symbol == "ETHBUSD") {
+      if (last < 2050 || last > 2800) {
+        sendNotification(`${symbol} is at ${last}`, obj);
+      }
+    }
 
-let mainLoop;
-(async () => {
-  info = {
-    ...(await exchangeInfo(obj)),
-  };
-  obj.info = info;
-  if (Object.keys(info) == 0) {
+    //updateAnalytics();
+    //console.log(binance.subscriptions);
+    //console.log(`chartupdate: ${symbol} is at ${last}`);
+  }
+);
+binance.websockets.candlesticks(obj.MONITOR_MARKETS, "1m", (candlesticks) => {
+  let { e:eventType, E:eventTime, s:symbol, k:ticks } = candlesticks;
+  let { o:open, h:high, l:low, c:close, v:volume, n:trades, i:interval, x:isFinal, q:quoteVolume, V:buyVolume, Q:quoteBuyVolume } = ticks;
+   //console.info(symbol+" "+interval+" candlestick update");
+/*  console.info("open: "+open);
+  console.info("high: "+high);
+  console.info("low: "+low);
+  console.info("close: "+close);
+  console.info("volume: "+volume);
+  console.info("isFinal: "+isFinal); */
+  let candleTime = new Date(candlesticks.E ).setSeconds(0,0);
+  if(!portfolio.pairs[symbol].candlesticks[candleTime]||
+    candlesticks.E > portfolio.pairs[symbol].candlesticks[candleTime].E ){
+    portfolio.pairs[symbol].candlesticks[candleTime] = candlesticks;
+    console.log(`${symbol} .. ${candlesticks.E}`);
+  } 
+
+  //updateAnalytics();
+});
+
+function balance_update(data) {
+  console.log("Balance Update");
+  if (data.B) {
+    console.log("Balance Update 3");
+    for (let obj of data.B) {
+      let { a: asset, f: available, l: onOrder } = obj;
+      if (available + onOrder == "0.00000000") continue;
+      portfolio.balances[asset] = {
+        asset: asset,
+        available: available,
+        onOrder: onOrder,
+      };
+    }
+  } else {
+    console.log("Balance Update 2");
+    for (let symbol in data) {
+      let asset = data[symbol];
+      asset.asset = symbol;
+      if (parseFloat(asset.available) + parseFloat(asset.onOrder) == 0)
+        continue;
+      portfolio.balances[symbol] = asset;
+    }
+  }
+  io.emit("portfolio", portfolio);
+}
+
+function execution_update(data) {
+  let {
+    x: executionType,
+    s: symbol,
+    p: price,
+    q: quantity,
+    S: side,
+    o: orderType,
+    i: orderId,
+    X: orderStatus,
+  } = data;
+  if (executionType == "NEW") {
+    if (orderStatus == "REJECTED") {
+      console.log("Order Failed! Reason: " + data.r);
+    }
+    console.log(
+      symbol +
+        " " +
+        side +
+        " " +
+        orderType +
+        " ORDER #" +
+        orderId +
+        " (" +
+        orderStatus +
+        ")"
+    );
+    console.log("..price: " + price + ", quantity: " + quantity);
+    return;
+  }
+  //NEW, CANCELED, REPLACED, REJECTED, TRADE, EXPIRED
+  console.log(
+    symbol +
+      "\t" +
+      side +
+      " " +
+      executionType +
+      " " +
+      orderType +
+      " ORDER #" +
+      orderId
+  );
+  pretrade(obj, portfolio.pairs[symbol], io, symbol, portfolio,false, binance);
+}
+binance.websockets.userData(balance_update, execution_update);
+logger.start_log("init-exchangeInfo", "info");
+let tmr = new Date();
+binance.balance((error, balances) => {
+  if (error) return console.error(error);
+  balance_update(balances);
+});
+binance.exchangeInfo(async function (error, response) {
+  console.log("time:", stopTime(tmr));
+  if (error) return console.error(error);
+  logger.stop_log("init-exchangeInfo", "warn");
+  exchange.info = response;
+  //console.log("exc",response);
+  portfolio.info = await parseExchangeInfo(response, obj.MONITOR_MARKETS);
+  if (Object.keys(portfolio.info).length == 0) {
     logger.error(
       `No information retreived. Probably the trading pair does not exist`
     );
     process.exit();
   }
+  obj.info = portfolio.info;
+  exchange.timeOffset = tmr.getTime() - exchange.info.serverTime;
+  console.log(tmr.getTime(), exchange.info.serverTime, exchange.timeOffset);
+});
+const port = obj.PORT;
 
-  mainLoop = setInterval(async () => {
-    const { balances } = await accountBalances(obj);
-    balances.forEach((element) => {
-      if (element.free != 0 || element.locked != 0) {
-        portfolio.balances[element.asset] = element;
-      }
-    });
-    io.emit("portfolio", portfolio);
-    for (let p in portfolio.pairs) {
-      portfolio.pairs[p].settings = {
-        ...portfolio.pairs[p].settings,
-        ...obj.defaults,
-      };
-      logger.info(`Processing ${p}`);
-      if (
-        portfolio.pairs[p].monitorEnabled ||
-        portfolio.pairs[p].tradeEnabled
-      ) {
-        pretrade(obj, portfolio.pairs[p], io, p, portfolio);
-      }
-      if (portfolio.pairs[p].tradeEnabled) {
-        //   pretrade(obj, io, p, portfolio);
-      }
+let mainLoop;
+(async () => {
+  // Wait for the initial load of balances and exchange info before starting the main loop
+  let startupLoop = setInterval(() => {
+    console.log("Waiting...");
+    if (
+      Object.keys(portfolio.info).length &&
+      Object.keys(portfolio.balances).length
+    ) {
+      clearInterval(startupLoop);
+      console.log("Got the basics, let's go!!");
+      //console.log(exchange);
+
+      mainLoop = setInterval(async () => {
+        /*         const { balances } = await accountBalances(obj);
+         */
+        io.emit("portfolio", portfolio);
+        for (let p in portfolio.pairs) {
+          portfolio.pairs[p].settings = {
+            ...portfolio.pairs[p].settings,
+            ...obj.defaults,
+          };
+          //  logger.info(`Processing ${p}`);
+          if (
+            portfolio.pairs[p].monitorEnabled ||
+            portfolio.pairs[p].tradeEnabled
+          ) {
+           pretrade(obj, portfolio.pairs[p], io, p, portfolio,false, binance);
+          }
+          if (portfolio.pairs[p].tradeEnabled) {
+            //   pretrade(obj, io, p, portfolio);
+          }
+        }
+      }, obj.INTERVAL);
     }
-  }, obj.INTERVAL);
+  
+  }, 1000);
 })();
 
 let draft;
@@ -124,11 +309,14 @@ cron.schedule("* * * * *", async () => {
   check(io, obj, portfolio.pairs);
 });
 
+app.use(express.static('public'))
+
 app.get("/", (req, res) => {
   res.render("form", {
     data: obj,
   });
 });
+
 
 app.post("/start", (req, res) => {
   let { pin, action } = req.body;

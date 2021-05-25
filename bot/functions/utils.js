@@ -1,5 +1,6 @@
 const fetch = require("node-fetch");
 const winston = require("winston");
+require("winston-timer")(winston);
 const fs = require("fs");
 const cron = require("node-cron");
 
@@ -12,12 +13,15 @@ if (!fs.existsSync(logDir)) {
 
 export const logger = winston.createLogger({
   transports: [
-    new winston.transports.Console(),
+    new winston.transports.Console({ format: winston.format.simple() }),
     new winston.transports.File({
       level: "error",
       filename: `${logDir}/logs.log`,
     }),
   ],
+});
+require("winston-timer")(logger, {
+  use_colors: false,
 });
 
 export const sendNotification = (message, st) => {
@@ -79,12 +83,48 @@ export const sendErrors = (message, st) => {
     });
 };
 
-export const getRSI = async function (tradingPair, st) {
+export const calcRSI = async function (pairInfo) {
+  let upMoves = 0;
+  let downMoves = 0;
+  let timeIndex = Object.keys(pairInfo.candlesticks)
+    .sort()
+    .reverse()
+    .splice(0, 30);
+    timeIndex.forEach((element) => {
+    let stick = pairInfo.candlesticks[element];
+    if (stick.k.o < stick.k.c) {
+      upMoves += 1;
+    }
+    if (stick.k.o > stick.k.c) {
+      downMoves += 1;
+    }
+  });
+  
+  const avgU = (upMoves / timeIndex.length).toFixed(8);
+  const avgD = (downMoves / timeIndex.length).toFixed(8);
+  const RS = avgU / avgD;
+  const RSI = 100 - 100 / (1 + RS);
+  console.log(avgU, avgD);
+  return [RSI, timeIndex.length];
+};
+export const getRSI = async function (tradingPair, st, pairInfo) {
   let upMoves = 0;
   let downMoves = 0;
   const averagePrice = await avgPrice30(tradingPair, st);
+  //console.log('pi',pairInfo.candlesticks,averagePrice);
+  /*   for(let i=0;i<2;i++){
+    console.log(pairInfo.candlesticks[i]);
+  } */
+  let newRSI = await calcRSI(pairInfo);
   averagePrice.forEach((element, index) => {
+    if (pairInfo.candlesticks[element[0]]) {
+      //console.log(pairInfo.candlesticks[element[0]], element);
+      if (element[1] != pairInfo.candlesticks[element[0]].k.o) {
+        console.log("openMismatch");
+      }
+    }
     if (element[1] < element[4]) {
+      //console.log('av',element,element[1] , element[4]);
       upMoves += 1;
     }
     if (element[1] > element[4]) {
@@ -95,6 +135,7 @@ export const getRSI = async function (tradingPair, st) {
   const avgD = (downMoves / 30).toFixed(8);
   const RS = avgU / avgD;
   const RSI = 100 - 100 / (1 + RS);
+  console.log("RSI.. new RSI:", tradingPair, newRSI, newRSI[0], newRSI[1],"old RSI:", RSI);
   return RSI;
 };
 

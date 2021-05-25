@@ -53,7 +53,8 @@ export const cancelStaleOrder = async function (
   openOrders,
   current_price,
   fullMultiplier,
-  st
+  st,
+  pairInfo
 ) {
   const cancelOptions = {
     symbol: market,
@@ -83,7 +84,10 @@ export const cancelStaleOrder = async function (
     return;
   }
 
-  if (openOrders[0].side == "SELL" && possibleLoss > st.ACCEPTABLE_LOSS) {
+  if (
+    openOrders[0].side == "SELL" &&
+    possibleLoss > pairInfo.settings.ACCEPTABLE_LOSS
+  ) {
     sendErrors(
       `Possible loss ${possibleLoss}% if sold at ${Number(
         current_price * fullMultiplier
@@ -110,9 +114,10 @@ export const placeBuy = async function (
   bottomBorder,
   price,
   RSI,
-  st
+  st,
+  pairInfo
 ) {
-  const fiat_pct = Number(st.FIAT_OR_QUOTE_PERCENT) / 100;
+  const fiat_pct = Number(pairInfo.settings.FIAT_OR_QUOTE_PERCENT) / 100;
   const buyingPrice = Number(price.price * bottomBorder).toFixed(
     `${st.info[tradingPair].quoteAssetPrecision}`
   );
@@ -130,6 +135,7 @@ export const placeBuy = async function (
     price: buyingPrice,
     newClientOrderId: Date.now(),
   };
+  console.log(orderOptions);
   if (
     (orderOptions.quantity != -0 || orderOptions.quantity != 0) &&
     quantityToBuy * buyingPrice >= Number(st.info[tradingPair].minOrder)
@@ -145,7 +151,7 @@ export const placeBuy = async function (
           return;
         }
         sendNotification(
-          `New order placed for ${orderOptions.quantity}@${orderOptions.price} | ${orderOptions.side}`,
+          `New ${tradingPair} order placed for ${orderOptions.quantity}@${orderOptions.price} | ${orderOptions.side}`,
           st
         );
         return order;
@@ -174,12 +180,13 @@ export const placeSell = async function (
   lastOrder,
   fullMultiplier,
   current_price,
-  st
+  st,
+  pairInfo
 ) {
   // Get the last buy price from the API, and if it less than the current price,
   // use the current price instead.
   // If the last order is BUY and is FILLED, we can now SELL, also RESELL if it was cancelled SELL
-  const asset_pct = Number(st.ASSET_PERCENT) / 100;
+  const asset_pct = Number(pairInfo.settings.ASSET_PERCENT) / 100;
 
   let sellingPrice = Number(lastOrder.price * fullMultiplier).toFixed(
     st.info[tradingPair].quoteAssetPrecision
@@ -242,10 +249,11 @@ export const placeLowSell = async function (
   latestOrder,
   fullMultiplier,
   current_price,
-  st
+  st,
+  pairInfo
 ) {
   // Sell at a small loss.
-  const asset_pct = Number(st.ASSET_PERCENT) / 100;
+  const asset_pct = Number(pairInfo.settings.ASSET_PERCENT) / 100;
   let sellingPrice = Number(current_price * fullMultiplier).toFixed(
     `${st.info[tradingPair].quoteAssetPrecision}`
   );
@@ -299,11 +307,17 @@ export const placeInitialBuy = async function (
   RSI,
   bottomBorder,
   price,
-  st
+  st,
+  pairInfo
 ) {
-  if (RSI > st.HIGHEST_RSI) {
-    logger.error(`Exiting, RSI is ${RSI}, which is above ${st.HIGHEST_RSI}`);
-    sendErrors(`Exiting, RSI is ${RSI}, which is above ${st.HIGHEST_RSI}`, st);
+  if (RSI > pairInfo.settings.HIGHEST_RSI) {
+    logger.error(
+      `Exiting, RSI is ${RSI}, which is above ${pairInfo.settings.HIGHEST_RSI}`
+    );
+    sendErrors(
+      `Exiting, RSI is ${RSI}, which is above ${pairInfo.settings.HIGHEST_RSI}`,
+      st
+    );
     return;
   }
   // Initialize order options
@@ -311,7 +325,7 @@ export const placeInitialBuy = async function (
     `There is $${acbl.FIAT} in the account. => BUY order will be placed.`,
     st
   );
-  const fiat_pct = Number(st.FIAT_OR_QUOTE_PERCENT) / 100;
+  const fiat_pct = Number(pairInfo.settings.FIAT_OR_QUOTE_PERCENT) / 100;
   const buyPrice = Number(price.price * bottomBorder).toFixed(
     `${st.info[tradingPair].quoteAssetPrecision}`
   );
@@ -356,13 +370,14 @@ export const placeInitialSell = async function (
   tradingPair,
   acbl,
   fullMultiplier,
-  st
+  st,
+  pairInfo
 ) {
   sendNotification(
     `There is ${acbl.MAIN_ASSET} ${st.info[tradingPair].baseAsset} in the account. => SELL order will be placed.`,
     st
   );
-  const asset_pct = Number(st.ASSET_PERCENT) / 100;
+  const asset_pct = Number(pairInfo.settings.ASSET_PERCENT) / 100;
   const sellPrice = Number(price.price * fullMultiplier).toFixed(
     `${st.info[tradingPair].quoteAssetPrecision}`
   );

@@ -6,6 +6,7 @@ import {
 } from "./functions/info";
 import {
   sendNotification,
+  calcRSI,
   getRSI,
   sendErrors,
   logger,
@@ -51,7 +52,8 @@ export const newtrade = async (
         tradeDetails.bottomBorder,
         tradeDetails.price,
         tradeDetails.RSI,
-        settings
+        settings,
+        pairInfo
       );
     }
     if (tradeDetails.type == "initial") {
@@ -62,7 +64,8 @@ export const newtrade = async (
         tradeDetails.RSI,
         tradeDetails.bottomBorder,
         tradeDetails.price,
-        settings
+        settings,
+        pairInfo
       );
       if (possibleOrder) {
         newOrder = possibleOrder;
@@ -78,7 +81,8 @@ export const newtrade = async (
         latestOrder[tradingPair],
         tradeDetails.fullMultiplier,
         current_price,
-        settings
+        settings,
+        pairInfo
       );
     }
     if (tradeDetails.type == "normal") {
@@ -90,7 +94,8 @@ export const newtrade = async (
         latestOrder[tradingPair][0],
         tradeDetails.fullMultiplier,
         current_price,
-        settings
+        settings,
+        pairInfo
       );
       console.log(latestOrder[tradingPair]);
     }
@@ -100,7 +105,8 @@ export const newtrade = async (
         tradingPair,
         acbl,
         tradeDetails.fullMultiplier,
-        settings
+        settings,
+        pairInfo
       );
       if (possibleOrder) {
         newOrder = possibleOrder;
@@ -126,27 +132,36 @@ export const makeDecision = async (
   const divider = Number(pairInfo.settings.BUYING_PRICE_DIVIDER);
 
   let bottomBorder = 1 - width / divider;
-
+  let result = {
+    existingOrder: false,
+  };
   // Check if there is no open order, get the latest order and see if it was filed or cancelled and whether it is a
   // buy order or a sell order.
   if (openOrders[tradingPair].length > 0) {
     // If there is still an open order, just set that open order as the latest order
     //latestOrder[tradingPair] = openOrders[tradingPair];
     if (pairInfo.tradeEnabled) {
-      //     console.log("Order Already Open:", tradingPair, openOrders[tradingPair]);
+      console.log("Order Already Open:", tradingPair, openOrders[tradingPair]);
     }
-    return false;
+    result.existingOrder = true;
   }
-
   if (latestOrder[tradingPair]) {
     let lastOrder = latestOrder[tradingPair][0];
-    if (
-      (lastOrder.side == "SELL" && lastOrder.status == "FILLED") ||
-      (lastOrder.status == "CANCELED" && lastOrder.side == "BUY")
-    ) {
+
+    if (lastOrder.status == "NEW" ||lastOrder.status == "FILLED" || lastOrder.status == "CANCELED") {
+      let newSide = lastOrder.side,
+      type = "normal";
+      /* If it's filled, flip side, if it's cancelled, just re-fill */
+      if (lastOrder.status == "FILLED") {
+        newSide = lastOrder.side == "SELL" ? "BUY" : "SELL";
+      } else if (lastOrder.status =="CANCELED"){
+        /* if cancelled, do something to stop selling at a loss */
+        type: "low"
+      }
+
       return {
-        side: "BUY",
-        type: "normal",
+        side: newSide,
+        type: type,
         bottomBorder: bottomBorder,
         price: price,
         RSI: RSI,
@@ -154,24 +169,10 @@ export const makeDecision = async (
       };
     }
 
-    // Sell at a possible loss if the sell was cancelled
-
+  
     if (lastOrder.status == "CANCELED" && lastOrder.side == "SELL") {
       return {
         side: "SELL",
-        type: "low",
-        bottomBorder: bottomBorder,
-        price: price,
-        RSI: RSI,
-        fullMultiplier: fullMultiplier,
-      };
-    }
-    if (
-      (lastOrder.status == "FILLED" && lastOrder.side == "BUY") ||
-      (lastOrder.status == "CANCELED" && lastOrder.side == "SELL")
-    ) {
-      return {
-        side: "SELL",
         type: "normal",
         bottomBorder: bottomBorder,
         price: price,
@@ -179,12 +180,13 @@ export const makeDecision = async (
         fullMultiplier: fullMultiplier,
       };
     }
+    console.log(lastOrder);
   } else {
     sendNotification(
       `There is no open order currently. Deciding which side to start with...`,
       settings
     );
-
+    console.log(tradingPair, "there");
     if (acbl.FIAT > Number(settings.info.minOrder)) {
       return {
         side: "BUY",
@@ -210,10 +212,17 @@ export const makeDecision = async (
         `Please add money to your account. You currently have only: $${acbl.FIAT} and ${acbl.MAIN_ASSET}${settings.MAIN_ASSET}, which is insufficient.`,
         settings
       );
-      return false;
+      return {
+        side: "BUY",
+        type: "no-funds",
+        bottomBorder: bottomBorder,
+        price: price,
+        RSI: RSI,
+        fullMultiplier: fullMultiplier,
+      };
     }
   }
-  console.log("no descision made!!!!");
+  console.log(tradingPair, "no descision made!!!!");
 };
 
 export const processStaleOrders = async (
@@ -246,23 +255,37 @@ export const processStaleOrders = async (
   }
   return false;
 };
+
+export const updateAnalytics = async (pairInfo) => {
+  const [newRSI, rsiLen] = await calcRSI(pairInfo);
+  let results = {
+    RSI: newRSI,
+    fullMultiplier:pairInfo.settings.WIGGLE_ROOM / 100 + 1
+  };
+  return results;
+};
 // The loop is set to poll the APIs in X milliseconds.
 export const pretrade = async (
   settings,
   pairInfo,
   socket,
   tradingPair,
-  portfolio
+  portfolio,
+  doTrade = false,
+  binance
 ) => {
+  let time = binance.last(pairInfo.candlesticks);
+  console.log(pairInfo.candlesticks[time].k.c);
+  const price = await checkPrice(tradingPair, settings);
   let pairSettings = pairInfo.settings;
-  const fullMultiplier = pairInfo.settings.WIGGLE_ROOM / 100 + 1;
   // Calculate the highest and lowest percentage multipliers according to the set WIGGLE_ROOM
   const openOptions = {
     symbol: tradingPair,
     timestamp: Date.now(),
   };
-
-  const RSI = await getRSI(tradingPair, settings);
+  let anal = await updateAnalytics(pairInfo);
+  pairInfo.RSI = anal.RSI;
+  //const RSI = await getRSI(tradingPair, settings,pairInfo);
 
   //Check and set account balances
   let acbl = {
@@ -277,13 +300,18 @@ export const pretrade = async (
     acbl.FIAT = portfolio.balances[settings.info[tradingPair].quoteAsset].free;
   }
   // Get the current price and also the latest two candle sticks
-  const price = await checkPrice(tradingPair, settings);
+  //portfolio.balances[tradingPair].available;
+  
+  let current_price = Number(pairInfo.candlesticks[time].k.c).toFixed(settings.info[tradingPair].quoteAssetPrecision);
+  
+
   price.price = Number(price.price).toFixed(
     settings.info[tradingPair].quoteAssetPrecision
   );
-  const current_price = price.price;
-  socket.emit("priceUpdate", tradingPair, current_price);
-  logger.info(`Ticker: ${tradingPair}: ${price.price}`);
+  console.log(current_price, price);
+  //  socket.emit("priceUpdate", tradingPair, current_price);
+  //console.log("price", price);
+  logger.info(`Ticker: ${tradingPair}: ${price.price} vs ${current_price}`);
 
   if (latestOrder[tradingPair] == undefined) {
     latestOrder[tradingPair] = {
@@ -292,8 +320,8 @@ export const pretrade = async (
   }
   // Check for open orders and if it is a BUY order and has not been filled within X minutes, cancel it
   // so that you can place another BUY order
-  openOrders[tradingPair] = await openOrder(openOptions, settings);
-
+/*   openOrders[tradingPair] = await openOrder(openOptions, settings);
+//console.log(openOrders);
   let topOrder = [];
 
   if (openOrders[tradingPair].length < 1) {
@@ -306,8 +334,9 @@ export const pretrade = async (
   } else {
     latestOrder[tradingPair] = openOrders[tradingPair];
     topOrder = latestOrder[tradingPair];
-  }
-
+  } */
+ // console.log("oreer",topOrder);
+  //console.log(portfolio.pairs[tradingPair].tradeHistory[portfolio.pairs[tradingPair].tradeHistory.length-1]);
   /*   if (pairInfo.tradeEnabled) {
     const restart = await processStaleOrders(
       current_price,
@@ -324,17 +353,16 @@ export const pretrade = async (
     pairInfo,
     tradingPair,
     acbl,
-    RSI,
+    pairInfo.RSI ,
     price,
     current_price,
-    fullMultiplier,
+    anal.fullMultiplier,
     topOrder
   );
-
   if (tradeDetails) {
     socket.emit("wouldTrade", tradingPair, tradeDetails);
-    if (pairInfo.tradeEnabled) {
-      console.log(pairInfo.tradeEnabled, "should:", tradeDetails);
+   // console.log(pairInfo.tradeEnabled, "should:", tradeDetails);
+    if (doTrade && pairInfo.tradeEnabled) {
       const result = await newtrade(
         settings,
         pairInfo,
@@ -345,7 +373,7 @@ export const pretrade = async (
         topOrder,
         tradeDetails
       );
-      console.log("+++", latestOrder[tradingPair]);
+    //  console.log("+++", latestOrder[tradingPair]);
       socket.emit("pending", tradingPair, latestOrder[tradingPair][0]);
     }
   }
