@@ -1,0 +1,8 @@
+div Estimated Total ${{ estTotal }}
+ul(class="col-md list-group list-group-flush", id="balances" v-for="asset in balances")
+    li
+        div
+            h5.text-center.text-primary  {{ asset.asset }}
+            p.text-center {{ asset.available }}
+            p.text-center {{ asset.onOrder }}
+            p.text-center.text-success {{ (parseFloat(asset.available)+ parseFloat(asset.onOrder)).toFixed(8) }}

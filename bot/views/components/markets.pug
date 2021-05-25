@@ -1,0 +1,69 @@
+div(class="col-md-2 mt-5 sidebar-portfolio", id="settings")
+    label(for = "market") Markets:
+    div(class="accordion" id="accordionMarkets")
+        div(class="accordion-item", v-for="p in markets")
+            h2(class="accordion-header" :id="'heading-market-' + p.pairName")
+                button(class="accordion-button" type="button" data-bs-toggle="collapse" :data-bs-target="'#collapse-market-'+ p.pairName" aria-expanded="true" :aria-controls="'collapse-market-'+ p.pairName") {{ p.pairName }}
+                    span(class="badge bg-secondary" v-if="!p.tradeEnabled && !p.monitorEnabled") disabled
+                    span(class="badge bg-success" v-if="p.tradeEnabled") Running
+                    span(class="badge bg-info" v-if="p.monitorEnabled && !p.tradeEnabled") Monitoring
+                    h6(v-if="prices[p.pairName]" v-bind:class="{'text-success': prices[p.pairName].change > 0,'text-danger':prices[p.pairName].change < 0}") {{ prices[p.pairName].price }}
+            div(:id="'collapse-market-'+ p.pairName" class="accordion-collapse collapse show" :aria-labelledby="'heading-market-' +p.pairName" data-bs-parent="#accordionMarkets")
+                div(class="accordion-body")
+                    h6(v-if="prices[p.pairName]") 
+                        span Price: 
+                        span(v-bind:class="{'text-success': prices[p.pairName].change > 0,'text-danger':prices[p.pairName].change < 0}") {{ prices[p.pairName].price }}
+                        br
+                        span Change: 
+                        span(v-if="prices[p.pairName]" v-bind:class="{'text-success': prices[p.pairName].change > 0,'text-danger':prices[p.pairName].change < 0}") {{ prices[p.pairName].pctChange.toFixed(3) }}%
+                        h6(v-if="latestOrders[p.pairName]" v-bind:class="{'text-success': latestOrders[p.pairName].side == 'BUY','text-danger': latestOrders[p.pairName].side == 'SELL'}") {{latestOrders[p.pairName].side }} :{{ latestOrders[p.pairName].price }}
+                        br
+                        span Suggestion: 
+                        span(v-if="possibleOrders[p.pairName]" v-bind:class="{'text-success': prices[p.pairName].change > 0,'text-danger':prices[p.pairName].change < 0}") {{ prices[p.pairName].pctChange.toFixed(3) }}%
+                        h6(v-if="possibleOrders[p.pairName]" v-bind:class="{'text-success': possibleOrders[p.pairName].side == 'BUY','text-danger': possibleOrders[p.pairName].side == 'SELL'}") {{possibleOrders[p.pairName].side }} @ {{ possibleOrders[p.pairName].price.price }}
+                        br
+                        br
+                        button.btn(type="button" v-bind:class="{'btn-success': p.tradeEnabled}") Enabled 
+                        button.btn(type="button" v-bind:class="{'btn-danger': !p.tradeEnabled}") Disabled
+    div(class="accordion" id="globalSettings")
+        div(class="accordion-item")
+            h2(class="accordion-header" id="heading-global-settings") 
+                button(class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-global-settings" aria-expanded="true" aria-controls="collapse-global-settings") Global Settings
+            div(id="collapse-global-settings" class="accordion-collapse collapse show" aria-labelledby="heading-global-settings" data-bs-parent="#globalSettings")
+                div(class="accordion-body")
+                    form(action = "/", method = "POST")
+                        div
+                            label(for = "interval_value") INTERVAL:
+                            input(name = "interval_value", value = `${data.INTERVAL}`, class="form-control")
+                        br
+                    
+                        div
+                            label(for = "room") WIGGLE_ROOM:
+                            input(name = "room", step="any", value = `${data.WIGGLE_ROOM}`, type="number", class="form-control")
+                        br
+                        div
+                            label(for = "asset_pct") ASSET_PERCENT:
+                            input(name = "asset_pct", step="any", value = `${data.ASSET_PERCENT}`, type="number", class="form-control")
+                        br
+                        div
+                            label(for = "fiat_or_quote_pct") FIAT_OR_QUOTE_PERCENT:
+                            input(name = "fiat_or_quote_pct", step="any", value = `${data.FIAT_OR_QUOTE_PERCENT}`, type="number", class="form-control")
+                        br
+                        div
+                            label(for = "after") CANCEL_AFTER:
+                            input(name = "after", value = `${data.CANCEL_AFTER}`, type="number", class="form-control")
+                        br
+                        div
+                            label(for = "instance") INSTANCE_NAME:
+                            input(name = "instance", value = `${data.INSTANCE_NAME}`, class="form-control")
+                        br
+                        div
+                            label(for = "divider") BUYING_PRICE_DIVIDER:
+                            input(name = "divider", value = `${data.BUYING_PRICE_DIVIDER}`, class="form-control")
+                        br
+                        div(class="form-group")
+                            label(for = "pin") PIN:
+                            input(name = "pin", type="password", class="form-control")
+                        br
+                        button(type = "submit", class="btn btn-primary btn-lg col-12") SAVE
+            
