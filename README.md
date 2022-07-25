@@ -16,30 +16,6 @@ Discord Invite: [Join](https://discord.gg/GTfs6pQmXe)
 
 ⚠️ This is still alpha stuff under active development. Some things might not work as described yet. Also, a lot of changes happening all over the place.
 
-## Theory (Wiggle Theory 😜)
-
-The prices of crypto go up and come down very fast, creating a gap of at least 0.5% every 5 minutes or so. That is for the more stable ones, like BTC. The rest even create a gap of up to 1.5% between the highest and lowest prices every 5 minutes! I call that gap WIGGLE_ROOM. 😉
-
-Based on this observation, theoretically, it should be possible to profit from such volatility by picking the mid position of the oscillation, that is, the average price between the highest and the lowest prices of the 5 minutes, then subtract half of the WIGGLE_ROOM when buying, and add a half of the WIGGLE_ROOM when selling. Easy. But it is not, accuracy of this is very small. But have faith.
-
-## Possible Risks
-
-If you place an order at the bottom of the curve by mistake, the graph can continue moving up and you are left there, all alone. In such a case, when a few minutes expire and the order is not even partially filled, if it is a BUY order, cancel it altogether.
-
-When the graph is already at the top of the oscillation when buying, even though we guard against this by doing averages, the selling price will be untouchable. So you have to sit and wait until the curve is high enough again so you can sell to remain profitable, this can mean a pause longer than a day.
-
-~~At the moment, it is not possible to just cancel and place it anywhere else for the sake of it, the bot is not accepting losses yet. Until it can, we have to sit and wait.~~ The bot now accepts losses. Just cancel the sell order manually and the bot will place a lower one, although slightly higher than the current price. I do this when I notice the price is now stable yet way below where the selling price is. It helps me collect more coin, even when the dollar value is less.
-
-Another risk is, when the main asset tanks, you will go down with it, however, the tanking is not always very fast, so it is possible to place orders as it goes down unless you bought at the absolute top, which means you will have to sit and wait for a reealy loong time!
-
-## Target
-
-From initial tests, using Binance Backtesting API for futures trading, when the WIGGLE_ROOM is set to 0.3%, the number of trades averages between 2-3 in one hour. This means that considering the fees are 0.1%, you remain with 0.1%*3 which implies that you can make up to 0.3% of 98% of your principal amount every one hour. In 24 hours, if all goes well being overly optimistic, you can make between 4-7% of 98% of your principal. (The 98% comes from trading at least 98% of your main asset, see settings)
-
-So say you started with 1000 USD, and set `"ASSET_PERCENT": 98.` 98% of 1000 is 980USD. Then, 4-7% of that is about 40-70USD each day. Which is decent to be honest.
-
-While testing on a real market, when the WIGGLE_ROOM was set to 0.5% in the DENTUSDT market, the average return came to about 0.6% in 4 hours, translating to around 2-4% each day. Quite decent!
-
 ## Future Improvements
 
 - Ability to trade multiple pairs.
